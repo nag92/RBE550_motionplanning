@@ -24,6 +24,17 @@ These variables are determined and filled algorithmically, and are expected (and
 path = []       # an ordered list of (x,y) tuples, representing the path to traverse from start-->goal
 expanded = {}   # a dictionary of (x,y) tuples, representing nodes that have been expanded
 frontier = {}   # a dictionary of (x,y) tuples, representing nodes to expand to in the future
+open = Queue.PriorityQueue()
+open.put(start)
+came_from = {}
+cost_so_far = {}
+came_from[start] = None
+cost_so_far[start] = 0
+G = 100000000
+e_s = float("inf")
+
+
+
 
 
 def search(map):
@@ -53,10 +64,69 @@ def search(map):
         -Gunnar (the TA)-
     '''
 
-    came_from = improved_solution(map)
-    path.extend(reconstruct_path(came_from))
+    #came_from = improved_solution(map)
+    #path.extend(reconstruct_path(came_from))
+    while not open.empty():
+        improve_solution()
+
+
+
     visualize_search("out.png") # see what your search has wrought (and maybe save your results)
 
+
+
+def heuristic(a, b):
+    """
+    calculates the heuristic
+    :param a:
+    :param b:
+    :return:
+    """
+    (x1, y1) = a
+    (x2, y2) = b
+    return abs(x1 - x2) + abs(y1 - y2)
+
+
+
+def get_neighbours(map, point):
+    """
+    return a list of neighbours to a point
+    :param point: point to find the neighbours off
+    :return: list of points
+    """
+    loc_x = point[0]
+    loc_y = point[1]
+    width, height = im.size
+    neighbors_in = [(loc_x - 1, loc_y), (loc_x, loc_y + 1), (loc_x + 1, loc_y), (loc_x, loc_y - 1)]
+    neighbors_out = []
+
+    for option in neighbors_in:
+       if (option[0] >=0 and option[0] < width) and (option[1] >=0 and option[1] < height):
+           if not map[option[0],option[1]]:
+               neighbors_out.append(option)
+
+    return neighbors_out
+
+
+
+def improve_solution():
+    print cost_so_far
+    #print G
+    while not open.empty():
+        current,cost = open.get()
+        print G
+        if current == end:
+
+            G = cost_so_far[current]
+
+        for next in get_neighbours(map,current):
+            new_cost = cost_so_far[current] + 1 # g(s) + c(s,s')
+            if next not in cost_so_far or new_cost < cost_so_far[next]:
+                cost_so_far[next] = new_cost
+                p = new_cost + heuristic(end,next)
+                if p < G:
+                    open.put((next, p))
+                    came_from[next] = current
 
 
 
@@ -80,64 +150,25 @@ def reconstruct_path(came_from):
     return my_path
 
 
-def improved_solution(map):
+def update_queue(queue):
+    """
+    update the keys
+    :param queue:
+    :return:
+    """
 
-    frontierQ = Queue.PriorityQueue()
-    frontierQ.put(start)
-    came_from = {}
-    cost_so_far = {}
-    came_from[start] = None
-    cost_so_far[start] = 0
-    count = 0
+    while queue.empty():
 
-    while not frontierQ.empty():
+        node, cost = queue.get()
+        if cost + 1 + heuristic(node,end) < G:
 
-        current = frontierQ.get()
-        count += 1
+            pass
+            
 
-        if current == end:
-            break
-
-        for next in get_neighbours(map, current):
-            new_cost = cost_so_far[current] + 1
-            if next not in cost_so_far or new_cost < cost_so_far[next]:
-                cost_so_far[next] = new_cost
-                priority = new_cost + heuristic(end, next)
-                frontierQ.put(next, priority)
-                came_from[next] = current
-    print count
-    return came_from
-
-
-def update_eplison():
+def update_key():
     pass
 
-def get_neighbours(map, point):
-    """
-    return a list of neighbours to a point
-    :param point: point to find the neighbours off
-    :return: list of points
-    """
-    loc_x = point[0]
-    loc_y = point[1]
-    width, height = im.size
-    print "width",width
-    print "height",height
-    neighbors_in = [(loc_x - 1, loc_y), (loc_x, loc_y + 1), (loc_x + 1, loc_y), (loc_x, loc_y - 1)]
-    neighbors_out = []
 
-    for option in neighbors_in:
-        if (option[0] >=0 and option[0] < width) and (option[1] >=0 and option[1] < height):
-            if not map[option[0],option[1]]:
-                neighbors_out.append(option)
-
-    return neighbors_out
-
-
-def heuristic(a, b):
-    (x1, y1) = a
-    (x2, y2) = b
-    return abs(x1 - x2) + abs(y1 - y2)
 
 
 
