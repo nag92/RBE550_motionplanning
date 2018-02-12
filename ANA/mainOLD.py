@@ -2,13 +2,15 @@ import sys
 from PIL import Image
 import copy
 import Queue
+
 '''
 These variables are determined at runtime and should not be changed or mutated by you
 '''
 start = (0, 0)  # a single (x,y) tuple, representing the start position of the search algorithm
 end = (0, 0)  # a single (x,y) tuple, representing the end position of the search algorithm
 difficulty = ""  # a string reference to the original import file
-
+G = 0
+E = 0
 '''
 These variables determine display coler, and can be changed by you, I guess
 '''
@@ -23,15 +25,10 @@ These variables are determined and filled algorithmically, and are expected (and
 path = []  # an ordered list of (x,y) tuples, representing the path to traverse from start-->goal
 expanded = {}  # a dictionary of (x,y) tuples, representing nodes that have been expanded
 frontier = {}  # a dictionary of (x,y) tuples, representing nodes to expand to in the future
-# Mine
-G = float("inf")
-E = 1000000
-open = Queue.PriorityQueue()
 
+open = Queue.PriorityQueue()
 came_from = {}
 cost_so_far = {}
-
-
 
 def search(map):
     """
@@ -39,8 +36,10 @@ def search(map):
     provided map.
     :param map: A '1-concept' PIL PixelAccess object to be searched. (basically a 2d boolean array)
     """
-
     # O is unoccupied (white); 1 is occupied (black)
+
+
+
     print "pixel value at start point ", map[start[0], start[1]]
     print "pixel value at end point ", map[end[0], end[1]]
 
@@ -60,41 +59,61 @@ def search(map):
         -Gunnar (the TA)-
     '''
 
-
     while not open.empty():
-        improve_solution()
-    visualize_search("out.png")  # see what your search has wrought (and maybe save your results)
+
+        came_from = improved_solution(map)
+        path.extend(reconstruct_path(came_from))
+        visualize_search("out.png")  # see what your search has wrought (and maybe save your results)
 
 
+def reconstruct_path(came_from):
+    """
+    reconstructs path
+    :param came_from:
+    :return:
+    """
+    current = end
+    my_path = []
+    # this_step = PoseStamped()
+    step_index = 0
+    while current != start:
+        my_path.append(current)
+        current = came_from[current]
+        # print my_path.poses[-1]
+    my_path.append(start)
+    my_path.reverse()  # optional
+    return my_path
 
-def improve_solution():
+
+def improved_solution(map):
+
     global G
     global E
-
     while not open.empty():
 
-        current,cost = open.get()
-        print current
-        if cost < E:
-            E = cost
+        current = open.get()
+        e = current[1]
+        current = current[0]
+
+        if e < E:
+            E = e
 
         if current == end:
             G = cost_so_far[current]
             break
 
-        for next in get_neighbours(map,current):
-
-            new_cost = cost_so_far[current] + 1
-
-            if next not in cost_so_far or new_cost < cost_so_far[next]: # g(s') < g(s) + c(s,s')
-
-                cost_so_far[next] = new_cost # g(s')
+        for next in get_neighbours(map, current):
+            new_cost = cost_so_far[current] + 1 # g(s') = g(s) + c(s,s')
+            if next not in cost_so_far or new_cost < cost_so_far[next]: # g(s) + c(s,s') < g(s')
+                cost_so_far[next] = new_cost # g(s') = g(s) + c(s.s')
                 key = make_key(next)
-
                 if key < G:
-
                     open.put((next, key))
                     came_from[next] = current
+
+
+    return came_from
+
 
 
 def make_key(node):
@@ -104,20 +123,9 @@ def make_key(node):
     :param node:
     :return:
     """
+    print heuristic(end,node)
     e = (G - cost_so_far[node])/heuristic(end,node)
     return e
-
-def heuristic(a, b):
-    """
-    calculates the heuristic
-    :param a:
-    :param b:
-    :return:
-    """
-    (x1, y1) = a
-    (x2, y2) = b
-    return abs(x1 - x2) + abs(y1 - y2)
-
 
 def get_neighbours(map, point):
     """
@@ -125,19 +133,28 @@ def get_neighbours(map, point):
     :param point: point to find the neighbours off
     :return: list of points
     """
+
     loc_x = point[0]
     loc_y = point[1]
     width, height = im.size
+
     neighbors_in = [(loc_x - 1, loc_y), (loc_x, loc_y + 1), (loc_x + 1, loc_y), (loc_x, loc_y - 1)]
     neighbors_out = []
 
     for option in neighbors_in:
-       if (option[0] >=0 and option[0] < width) and (option[1] >=0 and option[1] < height):
-           if not map[option[0],option[1]]:
-               neighbors_out.append(option)
+        if (option[0] >= 0 and option[0] < width) and (option[1] >= 0 and option[1] < height):
+            if not map[option[0], option[1]]:
+                neighbors_out.append(option)
 
     return neighbors_out
 
+
+def heuristic(a, b):
+    (x1, y1) = a
+    (x2, y2) = b
+    print a
+    print b
+    return abs(x1 - x2) + abs(y1 - y2) + 0.00001
 
 
 def visualize_search(save_file="do_not_save.png"):
@@ -197,9 +214,12 @@ if __name__ == "__main__":
         end = (580, 1)
     else:
         assert False, "Incorrect difficulty level provided"
+    G = 10000000
+    E = 10000000
     open.put((start, 0))
     came_from[start] = None
-
+    cost_so_far[start] = 0
     # Perform search on given image
     im = Image.open(difficulty)
+
     search(im.load())
