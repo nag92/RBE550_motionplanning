@@ -2,6 +2,7 @@ import sys
 from PIL import Image
 import copy
 import Queue
+import math
 
 '''
 These variables are determined at runtime and should not be changed or mutated by you
@@ -38,7 +39,7 @@ def search(map):
     """
     # O is unoccupied (white); 1 is occupied (black)
 
-
+    global open
 
     print "pixel value at start point ", map[start[0], start[1]]
     print "pixel value at end point ", map[end[0], end[1]]
@@ -58,12 +59,41 @@ def search(map):
     I believe in you
         -Gunnar (the TA)-
     '''
-
+    count  = 0
     while not open.empty():
-
+        print "count",count
         came_from = improved_solution(map)
+
         path.extend(reconstruct_path(came_from))
+
+        print "E", E
+        open = update_queue(open)
+
         visualize_search("out.png")  # see what your search has wrought (and maybe save your results)
+        count = count + 1
+
+
+def update_queue(queue):
+    """
+
+    :param queue:
+    :return:
+    """
+    new_open = Queue.PriorityQueue()
+
+    while not queue.empty():
+        current = queue.get()
+        e = current[1]
+        current = current[0]
+        print "e",e
+        if e < G:
+
+            key = make_key(current)
+            print "key",key
+            new_open.put((current,key) )
+
+    return new_open
+
 
 
 def reconstruct_path(came_from):
@@ -86,6 +116,11 @@ def reconstruct_path(came_from):
 
 
 def improved_solution(map):
+    """
+
+    :param map:
+    :return:
+    """
 
     global G
     global E
@@ -100,6 +135,7 @@ def improved_solution(map):
 
         if current == end:
             G = cost_so_far[current]
+            print G
             break
 
         for next in get_neighbours(map, current):
@@ -107,9 +143,10 @@ def improved_solution(map):
             if next not in cost_so_far or new_cost < cost_so_far[next]: # g(s) + c(s,s') < g(s')
                 cost_so_far[next] = new_cost # g(s') = g(s) + c(s.s')
                 key = make_key(next)
-                if key < G:
-                    open.put((next, key))
-                    came_from[next] = current
+                #print "key",key
+                if key < G:pass
+                open.put((next, key))
+                came_from[next] = current
 
 
     return came_from
@@ -123,7 +160,11 @@ def make_key(node):
     :param node:
     :return:
     """
-    print heuristic(end,node)
+    global G
+    global cost_so_far
+    global end
+    #print "h", heuristic(end,node)
+    #print "G'", (G - cost_so_far[node])
     e = (G - cost_so_far[node])/heuristic(end,node)
     return e
 
@@ -152,9 +193,7 @@ def get_neighbours(map, point):
 def heuristic(a, b):
     (x1, y1) = a
     (x2, y2) = b
-    print a
-    print b
-    return abs(x1 - x2) + abs(y1 - y2) + 0.00001
+    return math.sqrt((x1 - x2)**2 + (y1 - y2)**2)+0.01
 
 
 def visualize_search(save_file="do_not_save.png"):
@@ -214,8 +253,8 @@ if __name__ == "__main__":
         end = (580, 1)
     else:
         assert False, "Incorrect difficulty level provided"
-    G = 10000000
-    E = 10000000
+    G = 1000000000000000000
+    E = 1000000000000000000
     open.put((start, 0))
     came_from[start] = None
     cost_so_far[start] = 0
