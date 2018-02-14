@@ -12,6 +12,7 @@ end = (0, 0)  # a single (x,y) tuple, representing the end position of the searc
 difficulty = ""  # a string reference to the original import file
 G = 0
 E = 0
+e_list = []
 '''
 These variables determine display coler, and can be changed by you, I guess
 '''
@@ -59,33 +60,75 @@ def search(map):
     I believe in you
         -Gunnar (the TA)-
     '''
-    count  = 0
+    # main loop
+    frontier[start] = True
     while not open.empty():
-        #print "count",count
-        came_from = improved_solution(map)
-
+        improved_solution(map)
         path.extend(reconstruct_path(came_from))
-
-        print "E", E
-        open = update_queue(open)
-
+        open = prune(open)
         visualize_search("out.png")  # see what your search has wrought (and maybe save your results)
-        count = count + 1
+
+    print "final G",G
+    print "final E", E
 
 
-def update_queue(queue):
+def improved_solution(map):
+    """
+    Searchs the map for a path to the goal
+    based on: http://theory.stanford.edu/~amitp/GameProgramming/
+    :param map: maze to search
+    :return:
     """
 
+    global G
+    global E
+
+    while not open.empty():
+
+        current = open.get() # get the next state from the queue
+
+        e = current[1] # cost
+        current = current[0] # state
+
+        # update the globals
+        if e < E:
+            E = e
+            print "E", E
+
+        if current == end:
+            G = cost_so_far[current]
+            print "G", G
+            break
+
+        # loop through the neighbours
+        for next in get_neighbours(map, current):
+            new_cost = cost_so_far[current] + 1  # g(s') = g(s) + c(s,s')
+            if next not in cost_so_far or new_cost < cost_so_far[next]:  # g(s) + c(s,s') < g(s')
+                cost_so_far[next] = new_cost  # g(s') = g(s) + c(s.s')
+                came_from[next] = current
+                if new_cost + heuristic(end, next) < G:
+                    key = make_key(next)
+                    e_list.append(e)
+                    open.put((next, key))
+
+
+    #return came_from
+
+
+def prune(queue):
+    """
+    loop through queue and rebuild with new e(s)
     :param queue:
     :return:
     """
+
     new_open = Queue.PriorityQueue()
 
     while not queue.empty():
         current = queue.get()
         e = current[1]
         current = current[0]
-        print "e",e
+
         if cost_so_far[current] + heuristic(end, current) < G:
 
             key = make_key(current)
@@ -99,66 +142,19 @@ def update_queue(queue):
 def reconstruct_path(came_from):
     """
     reconstructs path
-    :param came_from:
-    :return:
+    :param came_from: a dict of nodes
+    :return: a list the node from start to finish
     """
+
     current = end
     my_path = []
-    # this_step = PoseStamped()
-    step_index = 0
+
     while current != start:
         my_path.append(current)
         current = came_from[current]
-        # print my_path.poses[-1]
     my_path.append(start)
     my_path.reverse()  # optional
     return my_path
-
-
-def improved_solution(map):
-    """
-
-    :param map:
-    :return:
-    """
-
-    global G
-    global E
-    count = 0
-    while not open.empty():
-
-        current = open.get()
-        e = current[1]
-        print "e",e
-        current = current[0]
-
-
-        if e < E:
-            E = e
-
-        if current == end:
-            G = cost_so_far[current]
-            print "G",G
-
-            break
-
-
-        for next in get_neighbours(map, current):
-
-            new_cost = cost_so_far[current] + 1 # g(s') = g(s) + c(s,s')
-            if next not in cost_so_far or new_cost < cost_so_far[next]: # g(s) + c(s,s') < g(s')
-                cost_so_far[next] = new_cost # g(s') = g(s) + c(s.s')
-                #print "key",key
-                came_from[next] = current
-                if new_cost + heuristic(end,next) < G:
-                    key = make_key(next)
-                    open.put((next, key))
-
-
-
-    return came_from
-
-
 
 def make_key(node):
     """
@@ -190,10 +186,9 @@ def get_neighbours(map, point):
     neighbors_out = []
 
     for option in neighbors_in:
-
         if (option[0] >= 0 and option[0] < width) and (option[1] >= 0 and option[1] < height):
 
-            if  not map[option[0], option[1]]:
+            if  map[option[0], option[1]] == 255:
                 neighbors_out.append(option)
 
 
@@ -201,9 +196,16 @@ def get_neighbours(map, point):
 
 
 def heuristic(a, b):
+    """
+    calculate the heuristic
+    :param a:
+    :param b:
+    :return:
+    """
     (x1, y1) = a
     (x2, y2) = b
-    return math.sqrt((x1 - x2)**2 + (y1 - y2)**2)+0.01
+
+    return math.sqrt((x1 - x2)**2 + (y1 - y2)**2) + 0.0001 # need to had a little to avoid division by 0
 
 
 def visualize_search(save_file="do_not_save.png"):
@@ -236,7 +238,6 @@ def visualize_search(save_file="do_not_save.png"):
 
     im.close()
 
-
 if __name__ == "__main__":
     # Throw Errors && Such
     # global difficulty, start, end
@@ -263,7 +264,7 @@ if __name__ == "__main__":
         end = (580, 1)
     elif difficulty == "my_maze.gif":
         start = (0, 0)
-        end = (632, 205)
+        end = (500, 205)
     elif difficulty == "my_maze2.gif":
         start = (0, 0)
         end = (599, 350)
@@ -276,5 +277,5 @@ if __name__ == "__main__":
     cost_so_far[start] = 0
     # Perform search on given image
     im = Image.open(difficulty)
-
+    im = im.convert('1')
     search(im.load())
