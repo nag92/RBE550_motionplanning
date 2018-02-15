@@ -3,6 +3,7 @@ from PIL import Image
 import copy
 import Queue
 import math
+import matplotlib.pyplot as plt
 
 '''
 These variables are determined at runtime and should not be changed or mutated by you
@@ -70,6 +71,21 @@ def search(map):
 
     print "final G",G
     print "final E", E
+    print len(e_list)
+    #f, (ax1, ax2,ax3) = plt.subplots(1, 3, sharey=False)
+
+    # #plt.plot(e_list[0:175])
+    # plt.suptitle('e over itteration', fontsize=16)
+    #
+    # ax1.plot(range(0,175),e_list[0:175])
+    # ax2.plot(range(175,198),e_list[175:198])
+    # ax3.plot(range(198,202),e_list[198:])
+    # ax1.set(xlabel='itterations', ylabel='cost')
+    # ax2.set(xlabel='itterations', ylabel='cost')
+    # ax3.set(xlabel='itterations', ylabel='cost')
+    # # ax4.plot(e_list[temp2+1:temp3])
+    # # ax5.plot(e_list[temp3+1:])
+    # plt.show()
 
 
 def improved_solution(map):
@@ -88,11 +104,14 @@ def improved_solution(map):
         current = open.get() # get the next state from the queue
 
         e = current[1] # cost
+        e_list.append(e)
         current = current[0] # state
 
         # update the globals
         if e < E:
+
             E = e
+
             print "E", E
 
         if current == end:
@@ -108,12 +127,8 @@ def improved_solution(map):
                 came_from[next] = current
                 if new_cost + heuristic(end, next) < G:
                     key = make_key(next)
-                    e_list.append(e)
+
                     open.put((next, key))
-
-
-    #return came_from
-
 
 def prune(queue):
     """
@@ -136,8 +151,6 @@ def prune(queue):
             new_open.put((current,key) )
 
     return new_open
-
-
 
 def reconstruct_path(came_from):
     """
@@ -191,9 +204,7 @@ def get_neighbours(map, point):
             if  map[option[0], option[1]] == 255:
                 neighbors_out.append(option)
 
-
     return neighbors_out
-
 
 def heuristic(a, b):
     """
