@@ -37,14 +37,14 @@ class Maze(object):
             self.obsticals.append(pygame.Rect((px,py),size) )
             pygame.draw.rect(self.screen, self.BLACK,obs,0)
 
-    def make_vertex(self, point1, point2,color):
+    def make_vertex(self, point1, point2,color,width=1):
         """
 
         :param point1: first point vertex
         :param point2: secound point vertex
         :return:
         """
-        pygame.draw.line(self.screen, color, point1, point2, 1)
+        pygame.draw.line(self.screen, color, point1, point2, width)
         pygame.display.update()
 
     def make_point(self,point1,color):

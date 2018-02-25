@@ -5,7 +5,7 @@ import pygame
 maze = Maze.Maze()
 
 if __name__ == '__main__':
-    RRT.rrt_star(maze)
+    RRT.brrt_star(maze)
     running = True
     while running:
        for event in pygame.event.get():
