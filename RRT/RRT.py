@@ -41,11 +41,12 @@ def choose_parent(maze,tree,cost,pt):
     travel_cost = float('inf')
     parent = (None,None)
     flag = False
+    radius = 100
     for key, value in tree.iteritems():
         dist = distance(key,pt)
         new_cost = dist + cost[key]
         can_go = maze.check_vertex(key,pt)
-        if new_cost < travel_cost and can_go:
+        if new_cost < travel_cost and can_go and dist<radius:
             travel_cost = new_cost
             parent = key
             flag = True
@@ -78,7 +79,6 @@ def make_path(maze,tree,leaf,root):
         path.append(parent)
 
 
-
 def rrt(maze):
 
     start = maze.get_start()
@@ -87,18 +87,16 @@ def rrt(maze):
     cost_so_far = {}
     tree[start] = None
     cost_so_far[start] = 0
-    color_a = (255,0,0)
-    color_a = (0, 0, 255)
+    color_b = (0, 0, 255)
     color_g = (0,255,0)
-    path_found = False
     node = start
-    while node[0] <= goal[0] or node[1] <= goal[1]:
+    while not maze.check_goal(node):
 
         connected = False
         flag = False
         while not flag:
             node = get_node(maze)
-            maze.make_point(node,color_a)
+            maze.make_point(node,color_b)
             parent, cost,flag = choose_parent(maze,tree,cost_so_far,node)
 
         tree[node] = parent
@@ -107,5 +105,7 @@ def rrt(maze):
         time.sleep(.01)
 
     make_path(maze,tree,node,start)
-    print "done"
+    return cost_so_far[node]
 
+def rrt_star(maze):
+    pass

@@ -123,3 +123,9 @@ class Maze(object):
     def get_goal(self):
 
         return self.goal
+
+    def check_goal(self,node):
+
+        x_zone = node[0] <= self.goal[0] + 0.5*self.zone and node[0] >= self.goal[0] - 0.5*self.zone
+        y_zone = node[1] <= self.goal[1] + 0.5*self.zone and node[1] >= self.goal[1] - 0.5*self.zone
+        return x_zone and y_zone
