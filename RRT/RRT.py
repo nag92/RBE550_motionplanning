@@ -4,6 +4,7 @@ import random
 import time
 
 
+RADUIS = 100
 def distance(p1,p2):
     """
     caclulate the distance between two points
@@ -41,24 +42,28 @@ def choose_parent(maze,tree,cost,pt):
     travel_cost = float('inf')
     parent = (None,None)
     flag = False
-    radius = 100
+
     for key, value in tree.iteritems():
         dist = distance(key,pt)
         new_cost = dist + cost[key]
         can_go = maze.check_vertex(key,pt)
-        if new_cost < travel_cost and can_go and dist<radius:
+        if new_cost < travel_cost and can_go and dist<RADUIS:
             travel_cost = new_cost
             parent = key
             flag = True
 
-
     return parent,travel_cost,flag
 
 
-def rewire(came_from,cost_so_far):
+def reWire(maze,tree,cost,node):
 
-     
-    pass
+    for leaf, value in tree.iteritems():
+        if leaf != tree[node] and distance(leaf,node) < RADUIS and cost[node]+distance(leaf,node) < cost[leaf]:
+            if maze.check_vertex(leaf,node):
+                tree[leaf] = node
+                cost[leaf] = cost[leaf] + distance(node, leaf)
+                #maze.make_vertex(leaf, tree[leaf], (255,140,0))
+    return tree, cost
 
 
 def make_path(maze,tree,leaf,root):
@@ -94,6 +99,7 @@ def rrt(maze):
 
         connected = False
         flag = False
+        cost = 100000000
         while not flag:
             node = get_node(maze)
             maze.make_point(node,color_b)
@@ -106,6 +112,31 @@ def rrt(maze):
 
     make_path(maze,tree,node,start)
     return cost_so_far[node]
-
+#
 def rrt_star(maze):
-    pass
+    start = maze.get_start()
+    goal = maze.get_goal()
+    tree = {}
+    cost_so_far = {}
+    tree[start] = None
+    cost_so_far[start] = 0
+    color_b = (0, 0, 255)
+    color_g = (0, 255, 0)
+    node = start
+    while not maze.check_goal(node):
+
+        connected = False
+        flag = False
+        while not flag:
+            node = get_node(maze)
+            maze.make_point(node, color_b)
+            parent, cost, flag = choose_parent(maze, tree, cost_so_far, node)
+        tree[node] = parent
+        cost_so_far[node] = cost
+        tree, cost_so_far = reWire(maze,tree,cost_so_far,node)
+        #maze.make_vertex(node, parent, color_g)
+        time.sleep(.01)
+    print cost_so_far[node]
+    make_path(maze, tree, node, start)
+    print cost_so_far[node]
+    return cost_so_far[node]
