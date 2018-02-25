@@ -5,6 +5,7 @@ import time
 
 
 RADUIS = 100
+
 def distance(p1,p2):
     """
     caclulate the distance between two points
@@ -103,9 +104,8 @@ def rrt(maze):
         cost = 100000000
         while not flag:
             node = get_node(maze)
-            maze.make_point(node,color_b)
             parent, cost,flag = choose_parent(maze,tree,cost_so_far,node)
-
+        maze.make_point(node, color_b)
         tree[node] = parent
         cost_so_far[node] = cost
         maze.make_vertex(node,parent,color_g)
@@ -154,12 +154,16 @@ def brrt_star(maze):
     tree_b[goal] = None
     cost_so_far[start] = 0
     cost_so_far[goal] = 0
-    node_a = (0, 0, 255)
-    node_b = (255, 0, 0)
+    point_a = (0, 0, 255)
+    point_b = (255, 0, 0)
     vertex_a = (0, 255, 0)
     vertex_b = (125, 0, 125)
     node = start
+
+    shared_node = start
     unconnected = False
+    in_tree_a = True
+    
     while not unconnected:
 
 
@@ -167,7 +171,7 @@ def brrt_star(maze):
         cost = 100000
         while not flag:
             node = get_node(maze)
-            maze.make_point(node, node_a)
+            maze.make_point(node, point_a)
             parent, cost, flag = choose_parent(maze, tree_a, cost_so_far, node)
 
         tree_a[node] = parent
@@ -178,13 +182,24 @@ def brrt_star(maze):
         parent, cost, unconnected = choose_parent(maze, tree_b, cost_so_far, node)
 
         if unconnected:
-            maze.make_vertex(node, parent, vertex_b)
 
-        tree_a,tree_b=tree_b,tree_a
-        vertex_a,vertex_b = vertex_b,vertex_a
-        node_a,node_b = node_b,node_a
+            shared_node = parent
+        else:
+            tree_a,tree_b=tree_b,tree_a
+            vertex_a,vertex_b = vertex_b,vertex_a
+            point_a,point_b = point_b,point_a
+            in_tree_a = not in_tree_a
+
         time.sleep(.01)
 
-    make_path(maze, tree_b, node, start)
+    if in_tree_a:
+        make_path(maze, tree_a, node, start)
+        make_path(maze, tree_b, shared_node, goal)
+    else:
+        make_path(maze, tree_a, node, goal)
+        make_path(maze, tree_b, shared_node, start)
+
+    maze.make_vertex(node, shared_node, (75,0,130), 3)
+
     print cost_so_far[node]
     return cost_so_far[node]
