@@ -33,23 +33,23 @@ class Maze(object):
             self.obsticals.append(pygame.Rect((px,py),size) )
             pygame.draw.rect(self.screen, self.BLACK,obs,0)
 
-    def make_vertex(self, point1, point2):
+    def make_vertex(self, point1, point2,color):
         """
 
         :param point1: first point vertex
         :param point2: secound point vertex
         :return:
         """
-        pygame.draw.line(self.screen, self.RED, point1, point2, 1)
+        pygame.draw.line(self.screen, color, point1, point2, 1)
         pygame.display.update()
 
-    def make_point(self,point1):
+    def make_point(self,point1,color):
         """
         draws a point
         :param point1: the point to draw
         :return:
         """
-        pygame.draw.circle(self.screen, self.RED, point1,1)
+        pygame.draw.circle(self.screen, color, point1,1)
         pygame.display.update()
 
     def check_point(self,point):
@@ -60,7 +60,7 @@ class Maze(object):
         """
         rect = pygame.Rect((point[0],point[1]),(1,1))
         collision =  rect.collidelist(self.obsticals)
-        return (collision == -1)
+        return not (collision == -1)
 
     def check_vertex(self,point1,point2):
         """

@@ -4,8 +4,6 @@ import random
 
 
 
-
-
 def distance(p1,p2):
     """
     caclulate the distance between two points
@@ -23,16 +21,14 @@ def get_node(maze):
     :return:
     """
     searching = True
-    width  = random.random()*maze.WIDTH
-    height = random.random()*maze.HEIGHT
+    width  = maze.WIDTH
+    height = maze.HEIGHT
     node = ()
     while searching:
-        node = (random.random()*width, random.random()*height)
+        node = (int(random.random()*width), int(random.random()*height))
         searching = maze.check_point(node)
 
     return node
-
-
 
 
 def choose_parent(maze,tree,cost,pt):
@@ -81,7 +77,6 @@ def make_path(tree,leaf,root):
 
 
 
-
 def rrt(maze):
 
     start = maze.get_start()
@@ -90,8 +85,15 @@ def rrt(maze):
     Tb = {}
     Ta[start] = 0
     Tb[goal] = 0
+    color_a = (255,0,0)
+    color_a = (0, 0, 255)
+    path_found = False
 
+    while not path_found:
 
+        node = get_node(maze)
+        print node
+        maze.make_point(node,color_a)
 
 
 
