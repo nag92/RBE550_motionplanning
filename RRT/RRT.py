@@ -5,6 +5,7 @@ import random
 
 
 
+
 def distance(p1,p2):
     """
     caclulate the distance between two points
@@ -22,7 +23,7 @@ def get_node(maze):
     :return:
     """
     searching = True
-    width = random.random()*maze.WIDTH
+    width  = random.random()*maze.WIDTH
     height = random.random()*maze.HEIGHT
     node = ()
     while searching:
@@ -31,26 +32,66 @@ def get_node(maze):
 
     return node
 
-def choose_parent(tree,pt):
-    """
 
+
+
+def choose_parent(maze,tree,cost,pt):
+    """
+    find the parent node and travel cost
     :param tree:
     :param pt:
     :return:
     """
-    l = 100000000000000
+    travel_cost = 100000000000000
     parent = ()
     for key, value in tree.iteritems():
         dist = distance(key,pt)
-        travel = maze.check_vertex(key,pt)
-        if dist > l and travel:
-            l = dist
+        new_cost = dist + cost[key]
+        can_go = maze.check_vertex(key,pt)
+        if new_cost < travel_cost and can_go:
+            travel_cost = new_cost
             parent = key
 
-    return parent
 
-maze = Maze()
+    return parent,travel_cost
 
-start = maze.get_start()
-nodes = {}
-nodes[start] = 0
+
+def rewire(came_from,cost_so_far):
+
+     
+    pass
+
+
+
+
+def make_path(tree,leaf,root):
+    """
+    recreated the path
+    :param Ta:
+    :param Tb:
+    :param goal:
+    :return:
+    """
+
+    path = [leaf]
+    parent = leaf
+    while parent != root:
+        parent = tree[parent]
+        path.append(parent)
+
+
+
+
+def rrt(maze):
+
+    start = maze.get_start()
+    goal = maze.get_goal()
+    Ta = {}
+    Tb = {}
+    Ta[start] = 0
+    Tb[goal] = 0
+
+
+
+
+
