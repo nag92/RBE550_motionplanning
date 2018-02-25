@@ -1,14 +1,14 @@
 import pygame
 import time
-class maze(object):
+class Maze(object):
 
     def __init__(self):
 
 
-        self.width = 800
-        self.height = 600
+        self.WIDTH = 800
+        self.HEIGHT = 600
         pygame.init()
-        self.screen = pygame.display.set_mode([self.width,self.height])
+        self.screen = pygame.display.set_mode([self.WIDTH,self.HEIGHT])
         pygame.display.set_caption('RRTstar')
         self.WHITE = (255,255,255)
         self.BLACK = (0,0,0)
@@ -59,7 +59,8 @@ class maze(object):
         :return:
         """
         rect = pygame.Rect((point[0],point[1]),(1,1))
-        return rect.collidelist(self.obsticals)
+        collision =  rect.collidelist(self.obsticals)
+        return (collision == -1)
 
     def check_vertex(self,point1,point2):
         """
@@ -69,7 +70,13 @@ class maze(object):
         :return:
         """
         temp = pygame.draw.line(self.screen, self.RED, point1, point2, 1)
-        return temp.collidelist(self.obsticals)
+        collision =  temp.collidelist(self.obsticals)
+        return (collision == -1)
 
+    def get_start(self):
 
+        return self.start
 
+    def get_goal(self):
+
+        return self.goal
