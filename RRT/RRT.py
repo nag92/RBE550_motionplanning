@@ -1,7 +1,7 @@
 import Maze
 import math
 import random
-
+import time
 
 
 def distance(p1,p2):
@@ -38,8 +38,9 @@ def choose_parent(maze,tree,cost,pt):
     :param pt:
     :return:
     """
-    travel_cost = 100000000000000
-    parent = ()
+    travel_cost = float('inf')
+    parent = (None,None)
+    flag = False
     for key, value in tree.iteritems():
         dist = distance(key,pt)
         new_cost = dist + cost[key]
@@ -47,9 +48,10 @@ def choose_parent(maze,tree,cost,pt):
         if new_cost < travel_cost and can_go:
             travel_cost = new_cost
             parent = key
+            flag = True
 
 
-    return parent,travel_cost
+    return parent,travel_cost,flag
 
 
 def rewire(came_from,cost_so_far):
@@ -58,9 +60,7 @@ def rewire(came_from,cost_so_far):
     pass
 
 
-
-
-def make_path(tree,leaf,root):
+def make_path(maze,tree,leaf,root):
     """
     recreated the path
     :param Ta:
@@ -72,7 +72,9 @@ def make_path(tree,leaf,root):
     path = [leaf]
     parent = leaf
     while parent != root:
-        parent = tree[parent]
+        next = tree[parent]
+        maze.make_vertex(next, parent, (75,0,130))
+        parent = next
         path.append(parent)
 
 
@@ -81,19 +83,29 @@ def rrt(maze):
 
     start = maze.get_start()
     goal = maze.get_goal()
-    Ta = {}
-    Tb = {}
-    Ta[start] = 0
-    Tb[goal] = 0
+    tree = {}
+    cost_so_far = {}
+    tree[start] = None
+    cost_so_far[start] = 0
     color_a = (255,0,0)
     color_a = (0, 0, 255)
+    color_g = (0,255,0)
     path_found = False
+    node = start
+    while node[0] <= goal[0] or node[1] <= goal[1]:
 
-    while not path_found:
+        connected = False
+        flag = False
+        while not flag:
+            node = get_node(maze)
+            maze.make_point(node,color_a)
+            parent, cost,flag = choose_parent(maze,tree,cost_so_far,node)
 
-        node = get_node(maze)
-        print node
-        maze.make_point(node,color_a)
+        tree[node] = parent
+        cost_so_far[node] = cost
+        maze.make_vertex(node,parent,color_g)
+        time.sleep(.01)
 
-
+    make_path(maze,tree,node,start)
+    print "done"
 
