@@ -6,32 +6,31 @@ vec = pg.math.Vector2
 import spacewar_helper as helper
 
 class Player(pg.sprite.Sprite):
-    def __init__(self,all_sprites,width,height):
+    def __init__(self,all_sprites):
+
         groups = all_sprites
-        self.WIDTH = width
-        self.HEIGHT = height
         pg.sprite.Sprite.__init__(self, groups)
         self.image = pg.Surface((30, 30))
         self.image.fill(helper.GREEN)
         self.rect = self.image.get_rect()
-        self.pos = vec(self.WIDTH / 2, self.HEIGHT / 2)
+        self.pos = vec(helper.WIDTH / 2, helper.HEIGHT / 2)
         self.rect.center = self.pos
         self.vel = vec(0, 0)
 
     def update(self):
-
-        #self.move_8way()
+        self.vel = vec(0, 0)
+        self.move_8way()
         self.pos += self.vel
         self.rect.center = self.pos
         # prevent sprite from moving off screen
         if self.pos.x < 0:
             self.pos.x = 0
-        if self.pos.x > self.WIDTH:
-            self.pos.x = self.WIDTH
+        if self.pos.x > helper.WIDTH:
+            self.pos.x = helper.WIDTH
         if self.pos.y < 0:
             self.pos.y = 0
-        if self.pos.y > self.HEIGHT:
-            self.pos.y = self.HEIGHT
+        if self.pos.y > helper.HEIGHT:
+            self.pos.y = helper.HEIGHT
 
     def move_8way(self):
         keystate = pg.key.get_pressed()
