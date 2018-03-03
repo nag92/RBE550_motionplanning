@@ -2,33 +2,39 @@ import pygame
 import time
 class Maze(object):
 
-    def __init__(self):
 
+    def __init__(self,title,start,goal,obs):
 
         self.WIDTH = 800
         self.HEIGHT = 600
         pygame.init()
         self.screen = pygame.display.set_mode([self.WIDTH,self.HEIGHT])
-        pygame.display.set_caption('RRTstar')
+
+        pygame.display.set_caption(title)
         self.WHITE = (255,255,255)
         self.BLACK = (0,0,0)
         self.RED = (255,0,0)
         self.screen.fill(self.WHITE)
         self.obsticals = []
-        self.start = (25,0)
+        self.start = start
         self.zone = 50
-        self.goal = (775,575)
-        self.make_obsticals()
+        self.goal = goal
+        self.title = title
+        self.make_obsticals(obs)
         pygame.draw.rect(self.screen, (125,125,0), (self.start[0]-0.5*self.zone,self.start[1]-0.5*self.zone,self.zone,self.zone ), 0)
         pygame.draw.rect(self.screen, (125,125,0), (self.goal[0]-0.5*self.zone,self.goal[1]-0.5*self.zone,self.zone,self.zone ), 0)
 
         pygame.display.update()
 
 
+    def take_screenshot(self):
+        fname = self.title + ".png"
+        pygame.image.save(self.screen, fname)
+        print("file {} has been saved".format(fname))
 
-    def make_obsticals(self):
-        centers = [(400,300), (350,150), (150,175),(175,300),(80,100),(500,500),(10,400), (400,10),(400,400),(700,500),(500,300)]
-        sizes = [ (100,100),(80,100), (100,20), (100,170),(95,95),(100,80),(80,100), (75,135),(80,80),(100,100),(100,250)]
+    def make_obsticals(self,obs):
+        centers = obs[0] #[(400,300), (350,150), (150,175),(175,300),(80,100),(500,500),(10,400), (400,10),(400,400),(700,500),(500,300)]
+        sizes = obs[1] #[ (100,100),(80,100), (100,20), (100,170),(95,95),(100,80),(80,100), (75,135),(80,80),(100,100),(100,250)]
 
         for center, size in zip(centers,sizes):
             px = center[0] - 0.5 * size[0]
