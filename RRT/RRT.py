@@ -79,12 +79,16 @@ def make_path(maze,tree,leaf,root):
 
     path = [leaf]
     parent = leaf
+
+    total_dist = 0
     while parent != root:
         next = tree[parent]
+        dist = distance(next,parent)
+        total_dist+=dist
         maze.make_vertex(next, parent, (75,0,130),3)
         parent = next
         path.append(parent)
-
+    return total_dist
 
 def rrt(maze):
 
@@ -97,6 +101,9 @@ def rrt(maze):
     color_b = (0, 0, 255)
     color_g = (0,255,0)
     node = start
+
+    itterations = 0
+
     while not maze.check_goal(node):
 
         connected = False
@@ -106,15 +113,19 @@ def rrt(maze):
             node = get_node(maze)
             parent, cost,flag = choose_parent(maze,tree,cost_so_far,node)
         maze.make_point(node, color_b)
+        itterations += 1
         tree[node] = parent
         cost_so_far[node] = cost
-        maze.make_vertex(node,parent,color_g)
+        dist = maze.make_vertex(node,parent,color_g)
         time.sleep(.01)
 
     make_path(maze,tree,node,start)
-    return cost_so_far[node]
+    return cost_so_far[node],dist,itterations
+#
+
 #
 def rrt_star(maze):
+
     start = maze.get_start()
     goal = maze.get_goal()
     tree = {}
@@ -124,23 +135,33 @@ def rrt_star(maze):
     color_b = (0, 0, 255)
     color_g = (0, 255, 0)
     node = start
+
+    itterations = 0
+
     while not maze.check_goal(node):
 
-        connected = False
         flag = False
+        cost = 0
+        parent = (0,0)
         while not flag:
+
             node = get_node(maze)
             maze.make_point(node, color_b)
             parent, cost, flag = choose_parent(maze, tree, cost_so_far, node)
+
         tree[node] = parent
         cost_so_far[node] = cost
-        tree, cost_so_far = reWire(maze,tree,cost_so_far,node)
+
+        if not flag:
+            tree, cost_so_far = reWire(maze,tree,cost_so_far,node)
+            itterations += 1
         maze.make_vertex(node, parent, color_g)
-        time.sleep(.01)
-    print cost_so_far[node]
-    make_path(maze, tree, node, start)
-    print cost_so_far[node]
-    return cost_so_far[node]
+        time.sleep(0.01)
+
+    dist = make_path(maze, tree, node, start)
+
+    return cost_so_far[node],dist,itterations
+
 
 
 
@@ -163,7 +184,9 @@ def brrt_star(maze):
     shared_node = start
     unconnected = False
     in_tree_a = True
-    
+
+    itterations = 0
+
     while not unconnected:
 
 
@@ -180,7 +203,7 @@ def brrt_star(maze):
         maze.make_vertex(node, parent, vertex_a)
 
         parent, cost, unconnected = choose_parent(maze, tree_b, cost_so_far, node)
-
+        itterations+=1
         if unconnected:
 
             shared_node = parent
@@ -190,16 +213,17 @@ def brrt_star(maze):
             point_a,point_b = point_b,point_a
             in_tree_a = not in_tree_a
 
-        time.sleep(.01)
-
+        time.sleep(0.01)
+    dist = 0
     if in_tree_a:
-        make_path(maze, tree_a, node, start)
-        make_path(maze, tree_b, shared_node, goal)
+        dist1 = make_path(maze, tree_a, node, start)
+        dist2 = make_path(maze, tree_b, shared_node, goal)
+        dist = dist1 + dist2
     else:
-        make_path(maze, tree_a, node, goal)
-        make_path(maze, tree_b, shared_node, start)
+        dist1 = make_path(maze, tree_a, node, goal)
+        dist2 = make_path(maze, tree_b, shared_node, start)
+        dist = dist1 + dist2
 
     maze.make_vertex(node, shared_node, (75,0,130), 3)
-
-    print cost_so_far[node]
-    return cost_so_far[node]
+    total_cost = cost_so_far[node] + cost_so_far[shared_node]
+    return total_cost,dist,itterations
