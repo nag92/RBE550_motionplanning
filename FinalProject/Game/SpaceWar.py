@@ -1,6 +1,8 @@
 import pygame as pg
 from Player import Player
-from Objects import Objects
+from Enemy import Enemy
+from Goal import Goal
+from Node import Node
 import spacewar_helper as helper
 
 class SpaceWar():
@@ -10,14 +12,16 @@ class SpaceWar():
         self.screen = pg.display.set_mode((helper.WIDTH, helper.HEIGHT), pg.DOUBLEBUF | pg.HWSURFACE)
         self.clock = pg.time.Clock()
         self.all_sprites = pg.sprite.Group()
-
+        self.RRT = pg.sprite.Group()
         self.enemies = pg.sprite.Group()
         self.goals = pg.sprite.Group()
+        self.nodes = pg.sprite.Group()
         self.player = Player(self.all_sprites)
-        self.path = pg.Rect(0, 0, 0, 0)
-        for i in xrange(10):
-            self.enemies.add( Objects(self.all_sprites,False) )
-            self.goals.add(Objects(self.all_sprites, True))
+        self.segments = []
+        for i in xrange(5):
+            self.enemies.add(Enemy(self.all_sprites))
+        for i in xrange(3):
+            self.goals.add(Goal(self.all_sprites))
 
         self.paused = False
         self.show_vectors = False
@@ -31,6 +35,10 @@ class SpaceWar():
     def check_collisilion_obsticals(self):
         pass
 
+    def add_node(self,pt):
+        pt = Node(pt)
+        self.RRT.add(pt)
+        self.nodes.add(pt)
 
     def check_collisilion_goals(self):
         pass
@@ -47,15 +55,26 @@ class SpaceWar():
         return self.player.rect
         pass
 
-    def draw_line(self,points):
-        self.path = pg.draw.lines(self.screen,helper.GREEN,  False, points, 1)
-        pg.display.flip()
+    def draw_line(self,start,finish):
+        self.segments.append((start, finish))
+
+    def update_line(self):
+
+        for pts in self.segments:
+            pg.draw.line(self.screen, helper.MAGENTA , pts[0],pts[1], 1)
+
 
     def update_score(self):
-        hits = pg.sprite.spritecollide(self.player, self.goals, True, pg.sprite.collide_circle)
-        for hit in hits:
+        hit_goal = pg.sprite.spritecollide(self.player, self.goals, False)
+        hit_enemies = pg.sprite.spritecollide(self.player, self.enemies, False)
+
+        for hit in hit_enemies:
+            self.score-=10
+
+
+        for hit in hit_goal:
             self.score+=10
-            hit.kill()
+            #hit.kill()
 
         helper.draw_text(self.screen, str(self.score), 18, helper.WIDTH / 2, 10)
 
@@ -86,7 +105,10 @@ class SpaceWar():
 
             # draw_grid()
             self.all_sprites.draw(self.screen)
+            self.RRT.draw(self.screen)
+
             self.update_score()
+            self.update_line()
             if self.show_vectors:
                 for sprite in self.all_sprites:
                     sprite.draw_vectors()
