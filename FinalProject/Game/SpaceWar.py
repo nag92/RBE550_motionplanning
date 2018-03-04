@@ -14,7 +14,7 @@ class SpaceWar():
         self.enemies = pg.sprite.Group()
         self.goals = pg.sprite.Group()
         self.player = Player(self.all_sprites)
-
+        self.path = pg.Rect(0, 0, 0, 0)
         for i in xrange(10):
             self.enemies.add( Objects(self.all_sprites,False) )
             self.goals.add(Objects(self.all_sprites, True))
@@ -23,6 +23,7 @@ class SpaceWar():
         self.show_vectors = False
         self.last_update = 0
         self.running = True
+        self.score = 0
 
     def move_player(self,vx,vy):
         self.player.update_vel(vx,vy)
@@ -43,8 +44,21 @@ class SpaceWar():
         pass
 
     def get_player(self):
-        return self.player.rec
+        return self.player.rect
         pass
+
+    def draw_line(self,points):
+        self.path = pg.draw.lines(self.screen,helper.GREEN,  False, points, 1)
+        pg.display.flip()
+
+    def update_score(self):
+        hits = pg.sprite.spritecollide(self.player, self.goals, True, pg.sprite.collide_circle)
+        for hit in hits:
+            self.score+=10
+            hit.kill()
+
+        helper.draw_text(self.screen, str(self.score), 18, helper.WIDTH / 2, 10)
+
 
     def keypress(self):
         for event in pg.event.get():
@@ -68,11 +82,11 @@ class SpaceWar():
             self.keypress()
             if not self.paused:
                 self.all_sprites.update()
-            pg.display.set_caption("{:.2f}".format(self.clock.get_fps()))
             self.screen.fill(helper.DARKGRAY)
 
             # draw_grid()
             self.all_sprites.draw(self.screen)
+            self.update_score()
             if self.show_vectors:
                 for sprite in self.all_sprites:
                     sprite.draw_vectors()
