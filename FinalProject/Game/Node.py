@@ -9,7 +9,7 @@ class Node(pg.sprite.Sprite):
     def __init__(self,node):
 
         pg.sprite.Sprite.__init__(self)
-        self.image = pg.Surface((10, 10))
+        self.image = pg.Surface((20, 20))
         self.image.fill(helper.YELLOW)
         self.rect = self.image.get_rect()
         self.rect.center = node

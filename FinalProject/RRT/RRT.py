@@ -4,8 +4,7 @@ import random
 import time
 
 
-RADUIS = 100
-
+RADUIS = 150
 def distance(p1,p2):
     """
     caclulate the distance between two points
@@ -18,7 +17,7 @@ def distance(p1,p2):
 
 
 def check_goal(goal,node):
-    zone = 10
+    zone = 40
 
     x_zone = node[0] <= goal[0] + 0.5*zone and node[0] >= goal[0] - 0.5*zone
     y_zone = node[1] <= goal[1] + 0.5*zone and node[1] >= goal[1] - 0.5*zone
@@ -123,51 +122,49 @@ def rrt(maze,start_loc,goal_loc):
         #dist = sw_helper.make_vertex(maze,node,parent)
         #time.sleep(.01)
 
-        yield (node,parent)
+        #yield (node,parent)
     print "sldajflakdjfldfjasldf"
-    #path,dist = make_path(maze,tree,node,start)
+    path,dist = make_path(maze,tree,node,start)
     #return path
-    #return cost_so_far[node],dist,itterations
+    return cost_so_far[node],dist,itterations
 #
 
 
-def rrt_star(maze):
-
-    start = maze.get_start()
-    goal = maze.get_goal()
+def rrt_star(maze,start_loc,goal_loc):
+    start = start_loc.center
+    goal = goal_loc.center
     tree = {}
     cost_so_far = {}
     tree[start] = None
     cost_so_far[start] = 0
-    color_b = (0, 0, 255)
-    color_g = (0, 255, 0)
     node = start
-
     itterations = 0
 
-    while not maze.check_goal(node):
+    while not check_goal(goal, node):
 
         flag = False
         cost = 0
         parent = (0,0)
         while not flag:
-
             node = get_node(maze)
-            maze.make_point(node, color_b)
             parent, cost, flag = choose_parent(maze, tree, cost_so_far, node)
 
+        itterations += 1
         tree[node] = parent
         cost_so_far[node] = cost
 
         if not flag:
             tree, cost_so_far = reWire(maze,tree,cost_so_far,node)
             itterations += 1
-        maze.make_vertex(node, parent, color_g)
-        time.sleep(0.01)
+
+        #yield (node,parent)
+
+        #maze.make_vertex(node, parent, color_g)
+        #time.sleep(0.01)
 
     dist = make_path(maze, tree, node, start)
 
-    return cost_so_far[node],dist,itterations
+    #return cost_so_far[node],dist,itterations
 
 
 

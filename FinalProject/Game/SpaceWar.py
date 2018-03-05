@@ -58,6 +58,10 @@ class SpaceWar():
     def draw_line(self,start,finish):
         self.segments.append((start, finish))
 
+    def draw_path(self,points):
+        pg.draw.lines(self.screen, helper.MAGENTA,False, points, 1)
+        pg.display.flip()
+
     def update_line(self):
 
         for pts in self.segments:
