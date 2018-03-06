@@ -66,10 +66,10 @@ def check_point(maze, point):
     """
 
     pt = make_point(point)
-    maze.all_sprites.add(pt)
+    #maze.all_sprites.add(pt)
     hit_goal = pg.sprite.spritecollide(pt, maze.enemies, False)
     #print hit_goal
-    maze.all_sprites.remove(pt)
+    #maze.all_sprites.remove(pt)
     if hit_goal:
         return 1
     else:

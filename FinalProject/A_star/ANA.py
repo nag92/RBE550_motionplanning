@@ -27,31 +27,9 @@ These variables are determined and filled algorithmically, and are expected (and
 '''
 
 
-def a_star_search(graph, start_loc, goal_loc):
-    frontier = Queue.PriorityQueue()
-    frontier.put(start, 0)
-    came_from = {}
-    cost_so_far = {}
-    start = start_loc.center
-    goal = goal_loc.center
-    came_from[start] = None
-    cost_so_far[start] = 0
 
-    while not frontier.empty():
-        current = frontier.get()
 
-        if current == goal:
-            break
-
-        for next in get_neighbours(graph, current):
-            new_cost = cost_so_far[current] + distance(current, next)
-            if next not in cost_so_far or new_cost < cost_so_far[next]:
-                cost_so_far[next] = new_cost
-                priority = new_cost + heuristic(goal, next)
-                frontier.put(next, priority)
-                came_from[next] = current
-
-    return came_from, cost_so_far
+    #return reconstruct_path(start,goal,came_from) #came_from, cost_so_far
 
 def search(map,start_loc,goal_loc):
     """
@@ -90,9 +68,10 @@ def search(map,start_loc,goal_loc):
     while not open.empty():
 
         came_from, cost_so_far = improved_solution(map,came_from,cost_so_far)
-        path = reconstruct_path(came_from)
+        path =  reconstruct_path(start,goal,came_from) #came_from, cost_so_far
+        yield path
         open = prune(open,cost_so_far)
-    return path
+    #return path
 
 def distance(p1,p2):
     """
@@ -170,14 +149,13 @@ def prune(queue,cost_so_far):
 
     return new_open
 
-def reconstruct_path(came_from):
+def reconstruct_path(start,goal,came_from):
     """
     reconstructs path
     :param came_from: a dict of nodes
     :return: a list the node from start to finish
     """
-    global goal
-    global start
+
 
     current = goal
     my_path = []

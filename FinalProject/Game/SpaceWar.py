@@ -58,15 +58,20 @@ class SpaceWar():
     def draw_line(self,start,finish):
         self.segments.append((start, finish))
 
+
     def draw_path(self,points):
-        pg.draw.lines(self.screen, helper.MAGENTA,False, points, 1)
-        pg.display.flip()
+
+        for pt in xrange(len(points)-1):
+            print pt
+            self.draw_line(points[pt],points[pt+1])
+
+
 
     def update_line(self):
 
         for pts in self.segments:
             pg.draw.line(self.screen, helper.MAGENTA , pts[0],pts[1], 1)
-
+        self.segments = []
 
     def update_score(self):
         hit_goal = pg.sprite.spritecollide(self.player, self.goals, False)

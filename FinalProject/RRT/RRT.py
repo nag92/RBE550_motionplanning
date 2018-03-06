@@ -37,7 +37,7 @@ def get_node(maze):
     while searching:
         node = (int(random.random()*width), int(random.random()*height))
         searching = sw_helper.check_point(maze,node)
-    print "found"
+    #print "found"
     return node
 
 
@@ -123,10 +123,10 @@ def rrt(maze,start_loc,goal_loc):
         #time.sleep(.01)
 
         #yield (node,parent)
-    print "sldajflakdjfldfjasldf"
+    #print "sldajflakdjfldfjasldf"
     path,dist = make_path(maze,tree,node,start)
-    #return path
-    return cost_so_far[node],dist,itterations
+    return path
+    #return cost_so_far[node],dist,itterations
 #
 
 
