@@ -67,11 +67,12 @@ def check_point(maze, point):
     """
 
     #time0 = time.time()
-    #pt = make_point(point)
+    pt = make_point(point)
     #maze.all_sprites.add(pt)
     #print time.time() - time0
-    return 0
-    #hit_goal = pg.sprite.spritecollide(maze.player, maze.enemies, False)
+    hit_goal = pg.sprite.spritecollide(pt, maze.enemies, False)
+
+
 
     #print hit_goal
     #maze.all_sprites.remove(pt)
@@ -133,3 +134,11 @@ def check_vertex(maze, point1, point2):
 
 
     return 1
+
+
+def get_obacle_rects(game):
+    enemeis = game.get_obsticals()
+    rects = []
+    for en in enemeis:
+        rects.append(en.rect)
+    return rects

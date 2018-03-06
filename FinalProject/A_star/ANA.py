@@ -4,6 +4,7 @@ import Queue
 import math
 import time
 import matplotlib.pyplot as plt
+import pygame as pg
 
 '''
 These variables are determined at runtime and should not be changed or mutated by you
@@ -36,7 +37,7 @@ class ANA():
         self.e_list = []
         self.goal = ()
         self.start =()
-
+        self.temp = pg.Rect((0, 0), (40, 40))
         self.game = game
 
     def reset(self):
@@ -74,7 +75,7 @@ class ANA():
 
         return self.reconstruct_path(came_from)# came_from, cost_so_far
 
-    def search(self,start_loc,goal_loc):
+    def search(self,start_loc,goal_loc,obs_rects):
 
 
         # a single (x,y) tuple, representing the end position of the search algorithm
@@ -83,8 +84,8 @@ class ANA():
         e_list = []
         self.start = start_loc.center
         self.goal = goal_loc.center
-        print self.start
-        print self.goal
+        self.obstacles = obs_rects
+
         open = PriorityQueue()
 
         came_from = {}
@@ -234,14 +235,23 @@ class ANA():
                         (loc_x-node_size, loc_y + node_size)]
         neighbors_out = []
 
+
         for option in neighbors_in:
             if (option[0] >= 0 and option[0] < width) and (option[1] >= 0 and option[1] < height):
-
-                if not sw_helper.check_point(self.game,option):
+                self.temp.centerx = option[0]
+                self.temp.centery = option[0]
+                if self.temp.collidelist(self.obstacles) == -1:# not sw_helper.check_point(self.game,option):
                     neighbors_out.append(option)
+
+
+
         #time.sleep(.000000001)
 
         return neighbors_out
+
+
+
+
 
     def heuristic(self,p1, p2):
         """

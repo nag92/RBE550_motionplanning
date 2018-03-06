@@ -6,6 +6,7 @@ import time
 game = FinalProject.Game.SpaceWar.SpaceWar()
 import queue
 import threading
+import FinalProject.Game.spacewar_helper as sw_helper
 
 x = 0
 y = 0
@@ -27,7 +28,7 @@ def find_path(game):
     path_solver = Astar.ANA(game)
     while(1):
 
-       solver =  path_solver.search( game.get_player(), game.get_goals()[0].rect)
+       solver =  path_solver.search( game.get_player(), game.get_goals()[0].rect,sw_helper.get_obacle_rects(game) )
 
        for pt in solver:
            path =  pt
