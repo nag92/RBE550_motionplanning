@@ -14,30 +14,29 @@ difficulty = ""  # a string reference to the original import file
 G = 1000000000000000000
 E = 1000000000000000000
 e_list = []
-'''
-These variables determine display coler, and can be changed by you, I guess
-'''
-NEON_GREEN = (0, 255, 0)
-PURPLE = (85, 26, 139)
-LIGHT_GRAY = (50, 50, 50)
-DARK_GRAY = (100, 100, 100)
 
-'''
-These variables are determined and filled algorithmically, and are expected (and required) be mutated by you
-'''
+# class ANA():
+#
+#     def __init__(self,game):
+#
+#         self.G = 1000000000000000000
+#         self.E = 1000000000000000000
+#         self.e_list = []
+#         self.goal = ()
+#         self.start =()
+#         self.came_form = []
+#         self.cost_so_far = []
+#
+#     def reset(self):
+#         self.G = 1000000000000000000
+#         self.E = 1000000000000000000
+#         self.e_list = []
+#         self.goal = ()
+#         self.start = ()
 
-
-
-
-    #return reconstruct_path(start,goal,came_from) #came_from, cost_so_far
 
 def search(map,start_loc,goal_loc):
-    """
-    This function is meant to use the global variables [start, end, path, expanded, frontier] to search through the
-    provided map.
-    :param map: A '1-concept' PIL PixelAccess object to be searched. (basically a 2d boolean array)
-    """
-    # O is unoccupied (white); 1 is occupied (black)
+
 
     global open
     global start
@@ -218,46 +217,3 @@ def heuristic(a, b):
     return math.sqrt((x1 - x2)**2 + (y1 - y2)**2) + 0.0001 # need to had a little to avoid division by 0
 
 
-
-
-# if __name__ == "__main__":
-#     # Throw Errors && Such
-#     # global difficulty, start, end
-#     assert sys.version_info[0] == 2  # require python 2 (instead of python 3)
-#     assert len(sys.argv) == 2, "Incorrect Number of arguments"  # require difficulty input
-#
-#     # Parse input arguments
-#     function_name = str(sys.argv[0])
-#     difficulty = str(sys.argv[1])
-#     print "running " + function_name + " with " + difficulty + " difficulty."
-#
-#     # Hard code start and end positions of search for each difficulty level
-#     if difficulty == "trivial.gif":
-#         start = (8, 1)
-#         end = (20, 1)
-#     elif difficulty == "medium.gif":
-#         start = (8, 201)
-#         end = (110, 1)
-#     elif difficulty == "hard.gif":
-#         start = (10, 1)
-#         end = (401, 220)
-#     elif difficulty == "very_hard.gif":
-#         start = (1, 324)
-#         end = (580, 1)
-#     elif difficulty == "my_maze.gif":
-#         start = (0, 0)
-#         end = (500, 205)
-#     elif difficulty == "my_maze2.gif":
-#         start = (0, 0)
-#         end = (599, 350)
-#     else:
-#         assert False, "Incorrect difficulty level provided"
-#     G = 1000000000000000000
-#     E = 1000000000000000000
-#     open.put((start, 0))
-#     came_from[start] = None
-#     cost_so_far[start] = 0
-#     # Perform search on given image
-#     im = Image.open(difficulty)
-#     im = im.convert('1')
-#     search(im.load())
