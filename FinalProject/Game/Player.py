@@ -35,13 +35,13 @@ class Player(pg.sprite.Sprite):
     def move_8way(self):
         keystate = pg.key.get_pressed()
         if keystate[pg.K_UP]:
-            self.vel.y = -5
+            self.vel.y = -10
         if keystate[pg.K_DOWN]:
-            self.vel.y = 5
+            self.vel.y = 10
         if keystate[pg.K_LEFT]:
-            self.vel.x = -5
+            self.vel.x = -10
         if keystate[pg.K_RIGHT]:
-            self.vel.x = 5
+            self.vel.x = 10
 
     def update_vel(self,x,y):
         self.vel.y = y

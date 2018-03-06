@@ -11,10 +11,10 @@ class Goal(pg.sprite.Sprite):
 
         self.mass = 10
         self.rect = self.image.get_rect()
-        self.rect.x = 50#random.randrange(helper.WIDTH - self.rect.width)
-        self.rect.y = 50#random.randrange(helper.HEIGHT - self.rect.height)
-        self.speedy = 0#random.randrange(-1, 1)
-        self.speedx = 0#random.randrange(-1, 1)
+        self.rect.x = random.randrange(helper.WIDTH - self.rect.width)
+        self.rect.y = random.randrange(helper.HEIGHT - self.rect.height)
+        self.speedy = random.randrange(-1, 1)
+        self.speedx = random.randrange(-1, 1)
 
     def update(self):
         self.rect.x += self.speedx

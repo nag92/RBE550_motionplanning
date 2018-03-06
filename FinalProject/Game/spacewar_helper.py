@@ -1,10 +1,11 @@
 import pygame as pg
 import Node
+import time
 TILESIZE = 64
 GRIDWIDTH = 25
 GRIDHEIGHT = 12
-WIDTH =800 #TILESIZE * GRIDWIDTH
-HEIGHT =600 #TILESIZE * GRIDHEIGHT
+WIDTH  = 800 #TILESIZE * GRIDWIDTH
+HEIGHT = 600 #TILESIZE * GRIDHEIGHT
 # WIDTH = 1200
 # HEIGHT = 800
 FPS = 60
@@ -65,9 +66,13 @@ def check_point(maze, point):
     :return:
     """
 
-    pt = make_point(point)
+    #time0 = time.time()
+    #pt = make_point(point)
     #maze.all_sprites.add(pt)
-    hit_goal = pg.sprite.spritecollide(pt, maze.enemies, False)
+    #print time.time() - time0
+    return 0
+    #hit_goal = pg.sprite.spritecollide(maze.player, maze.enemies, False)
+
     #print hit_goal
     #maze.all_sprites.remove(pt)
     if hit_goal:
@@ -112,6 +117,8 @@ def check_vertex(maze, point1, point2):
         x_at_y3 = (p3[1] - point1[1]) / m + point1[0]
         t_x_at_y3 = (p3[1] - point1[1]) / b
 
+
+
         if ((y_at_x1 >= p1[1]) and (y_at_x1 <= p3[1]) and (t_y_at_x1 >= 0) and (t_y_at_x1 <= 1)):
             return 0
 
@@ -123,5 +130,6 @@ def check_vertex(maze, point1, point2):
 
         elif ((x_at_y3 >= p1[0]) and (x_at_y3 <= p2[0]) and (t_x_at_y3 >= 0) and (t_x_at_y3 <= 1)):
             return 0
+
 
     return 1

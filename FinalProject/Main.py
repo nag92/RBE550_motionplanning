@@ -26,22 +26,28 @@ def find_path(game):
     prev_loc = game.get_player()
     path_solver = Astar.ANA(game)
     while(1):
+
        solver =  path_solver.search( game.get_player(), game.get_goals()[0].rect)
+
        for pt in solver:
-           path = pt
+           path =  pt
+
+
        path_solver.reset()
+
 
 
 if __name__ =="__main__":
     global path
     game = FinalProject.Game.SpaceWar.SpaceWar()
     update = True
+
     t = threading.Thread(target=find_path,args=(game,))
     t.start()
 
     while 1:
         game.update()
-        if path and update:
 
+        if path and update:
            game.draw_path(path)
 

@@ -2,11 +2,30 @@ import sys
 import FinalProject.Game.spacewar_helper as sw_helper
 import Queue
 import math
+import time
 import matplotlib.pyplot as plt
 
 '''
 These variables are determined at runtime and should not be changed or mutated by you
 '''
+import heapq
+
+
+class PriorityQueue:
+    def __init__(self):
+        self.elements = []
+
+    def empty(self):
+        return len(self.elements) == 0
+
+    def put(self, item, priority):
+        heapq.heappush(self.elements, (priority, item))
+
+    def get(self):
+        item = heapq.heappop(self.elements)
+        return item
+
+
 
 class ANA():
 
@@ -27,19 +46,51 @@ class ANA():
         self.goal = ()
         self.start = ()
 
-
-    def search(self,start_loc,goal_loc):
-        # a single (x,y) tuple, representing the end position of the search algorithm
-
+    def a_star_search(self, start_loc, goal_loc):
+        frontier = PriorityQueue()
 
         self.start = start_loc.center
         self.goal = goal_loc.center
-        open = Queue.PriorityQueue()
+        frontier.put(self.start, 0)
+        came_from = {}
+        cost_so_far = {}
+        came_from[self.start] = None
+        cost_so_far[self.start] = 0
+
+        while not frontier.empty():
+            current = frontier.get()
+
+            if current == self.goal:
+                break
+
+            for next in self.get_neighbours(current):
+                new_cost = cost_so_far[current] + self.distance(current, next)
+                if next not in cost_so_far or new_cost < cost_so_far[next]:
+                    cost_so_far[next] = new_cost
+                    priority = new_cost + self.heuristic(self.goal, next)
+                    frontier.put(next, priority)
+                    came_from[next] = current
+            #time.sleep(0.1)
+
+        return self.reconstruct_path(came_from)# came_from, cost_so_far
+
+    def search(self,start_loc,goal_loc):
+
+
+        # a single (x,y) tuple, representing the end position of the search algorithm
+        difficulty = ""  # a string reference to the original import file
+
+        e_list = []
+        self.start = start_loc.center
+        self.goal = goal_loc.center
+        print self.start
+        print self.goal
+        open = PriorityQueue()
 
         came_from = {}
         cost_so_far = {}
 
-        open.put((self.start, 0))
+        open.put(self.start, 0)
         came_from[self.start] = None
         cost_so_far[self.start] = 0
         # put your final path into this array (so visualize_search can draw it in purple)
@@ -48,10 +99,16 @@ class ANA():
         # put your expanded nodes into this dictionary (so visualize_search can draw them in dark gray)
         while not open.empty():
 
-            open,came_from, cost_so_far = self.improved_solution(open,came_from,cost_so_far)
+            # came_from, cost_so_far = self.a_star_search(start_loc,goal_loc)
+            # path = self.reconstruct_path(came_from)  # came_from, cost_so_far
+            # yield path
+            # #
+            open, came_from, cost_so_far = self.improved_solution(open,came_from,cost_so_far)
             path =  self.reconstruct_path(came_from) #came_from, cost_so_far
             yield path
-            open = self.prune(open,cost_so_far)
+            open = self.prune(open, cost_so_far)
+
+
         #return path
 
     def distance(self,p1,p2):
@@ -61,8 +118,9 @@ class ANA():
         :param p2:
         :return:
         """
-
-        return math.sqrt( (p1[0]-p2[0])**2 + (p1[1]-p2[1])**2 )
+        x = (p1[0]-p2[0])**2
+        y = (p1[1]-p2[1])**2
+        return math.sqrt(  x + y )
 
 
     def improved_solution(self,open,came_from,cost_so_far):
@@ -74,13 +132,12 @@ class ANA():
         """
 
         while not open.empty():
+            #time.sleep(0.1)
+            item = open.get() # get the next state from the queue
 
-
-            current = open.get() # get the next state from the queue
-
-            e = current[1] # cost
+            e = item[0] # cost
             self.e_list.append(e)
-            current = current[0] # state
+            current = item[1] # state
 
             # update the globals
             if e < self.E:
@@ -88,7 +145,6 @@ class ANA():
 
             if current == self.goal:
                 self.G = cost_so_far[current]
-
                 return open,came_from, cost_so_far
 
             # loop through the neighbours
@@ -97,12 +153,16 @@ class ANA():
                 new_cost = cost_so_far[current] + self.distance(next,current)  # g(s') = g(s) + c(s,s')
 
                 if next not in cost_so_far or new_cost < cost_so_far[next]:  # g(s) + c(s,s') < g(s')
+
                     cost_so_far[next] = new_cost  # g(s') = g(s) + c(s.s')
                     came_from[next] = current
 
+
                     if new_cost + self.heuristic(self.goal, next) < self.G:
                         key = self.make_key(next,cost_so_far)
-                        open.put((next, key))
+                        open.put(next, key)
+
+                #time.sleep(0.1)
 
         return open,came_from, cost_so_far
 
@@ -113,16 +173,17 @@ class ANA():
         :return:
         """
 
-        new_open = Queue.PriorityQueue()
+        new_open = PriorityQueue()
 
         while not queue.empty():
-            current = queue.get()
-            e = current[1]
-            current = current[0]
+            item = queue.get()
+
+            e = item[0]
+            current = item[1]
 
             if cost_so_far[current] + self.heuristic(self.goal, current) < self.G:
                 key = self.make_key(current,cost_so_far)
-                new_open.put((current,key) )
+                new_open.put(current,key)
 
         return new_open
 
@@ -154,7 +215,7 @@ class ANA():
 
         #print "h", heuristic(end,node)
         #print "G'", (G - cost_so_far[node])
-        e = (self.G - cost_so_far[node])/self.heuristic(self.goal,node)
+        e = 1/( (self.G - cost_so_far[node])/(self.heuristic(self.goal,node)+.001))
         return e
 
     def get_neighbours(self, point):
@@ -167,9 +228,10 @@ class ANA():
         loc_x = point[0]
         loc_y = point[1]
         width, height = sw_helper.WIDTH,sw_helper.HEIGHT
-        node_size = 5
+        node_size = 1
         neighbors_in = [(loc_x - node_size, loc_y), (loc_x, loc_y + node_size), (loc_x + node_size, loc_y), (loc_x, loc_y - node_size),
-                        (loc_x - node_size, loc_y - node_size),(loc_x + node_size, loc_y + node_size),(loc_x - node_size, loc_y+node_size),(loc_x + node_size, loc_y-5)]
+                        (loc_x - node_size, loc_y-node_size), (loc_x+node_size, loc_y + node_size), (loc_x + node_size, loc_y-node_size),
+                        (loc_x-node_size, loc_y + node_size)]
         neighbors_out = []
 
         for option in neighbors_in:
@@ -177,19 +239,18 @@ class ANA():
 
                 if not sw_helper.check_point(self.game,option):
                     neighbors_out.append(option)
+        #time.sleep(.000000001)
 
         return neighbors_out
 
-    def heuristic(self,a, b):
+    def heuristic(self,p1, p2):
         """
         calculate the heuristic
         :param a:
         :param b:
         :return:
         """
-        (x1, y1) = a
-        (x2, y2) = b
-
-        return math.sqrt((x1 - x2)**2 + (y1 - y2)**2) + 0.0001 # need to had a little to avoid division by 0
-
+        x = (p1[0] - p2[0]) ** 2
+        y = (p1[1] - p2[1]) ** 2
+        return math.sqrt(x + y)
 

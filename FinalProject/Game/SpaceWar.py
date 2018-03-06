@@ -18,9 +18,9 @@ class SpaceWar():
         self.nodes = pg.sprite.Group()
         self.player = Player(self.all_sprites)
         self.segments = []
-        for i in xrange(5):
-            self.enemies.add(Enemy(self.all_sprites))
-        for i in xrange(3):
+        # for i in xrange(5):
+        #     self.enemies.add(Enemy(self.all_sprites))
+        for i in xrange(1):
             self.goals.add(Goal(self.all_sprites))
 
         self.paused = False
@@ -82,7 +82,7 @@ class SpaceWar():
 
         for hit in hit_goal:
             self.score+=10
-            #hit.kill()
+            hit.kill()
 
         helper.draw_text(self.screen, str(self.score), 18, helper.WIDTH / 2, 10)
 
