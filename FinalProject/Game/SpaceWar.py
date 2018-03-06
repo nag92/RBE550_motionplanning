@@ -62,7 +62,6 @@ class SpaceWar():
     def draw_path(self,points):
 
         for pt in xrange(len(points)-1):
-            print pt
             self.draw_line(points[pt],points[pt+1])
 
 

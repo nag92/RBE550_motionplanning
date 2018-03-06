@@ -24,11 +24,12 @@ def find_path(game):
 
     global path
     prev_loc = game.get_player()
-
+    path_solver = Astar.ANA(game)
     while(1):
-       solver =  Astar.search(game, game.get_player(), game.get_goals()[0].rect)
+       solver =  path_solver.search( game.get_player(), game.get_goals()[0].rect)
        for pt in solver:
            path = pt
+       path_solver.reset()
 
 
 if __name__ =="__main__":
