@@ -18,7 +18,7 @@ class SpaceWar():
         self.nodes = pg.sprite.Group()
         self.player = Player(self.all_sprites)
         self.segments = []
-        for i in xrange(5):
+        for i in xrange(1):
             self.enemies.add(Enemy(self.all_sprites))
         for i in xrange(1):
             self.goals.add(Goal(self.all_sprites))
@@ -37,8 +37,8 @@ class SpaceWar():
 
     def add_node(self,pt):
         pt = Node(pt)
-        self.RRT.add(pt)
         self.nodes.add(pt)
+        self.all_sprites.add(pt)
 
     def check_collisilion_goals(self):
         pass
@@ -63,7 +63,6 @@ class SpaceWar():
 
         for pt in xrange(len(points)-1):
             self.draw_line(points[pt],points[pt+1])
-
 
 
     def update_line(self):
@@ -117,7 +116,5 @@ class SpaceWar():
 
             self.update_score()
             self.update_line()
-            if self.show_vectors:
-                for sprite in self.all_sprites:
-                    sprite.draw_vectors()
+
             pg.display.flip()

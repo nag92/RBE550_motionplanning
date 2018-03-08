@@ -4,7 +4,7 @@ import time
 TILESIZE = 64
 GRIDWIDTH = 25
 GRIDHEIGHT = 12
-WIDTH  = 800 #TILESIZE * GRIDWIDTH
+WIDTH  = 600 #TILESIZE * GRIDWIDTH
 HEIGHT = 600 #TILESIZE * GRIDHEIGHT
 # WIDTH = 1200
 # HEIGHT = 800
@@ -67,10 +67,10 @@ def check_point(maze, point):
     """
 
     #time0 = time.time()
-    pt = make_point(point)
+    #pt = make_point(point)
     #maze.all_sprites.add(pt)
     #print time.time() - time0
-    hit_goal = pg.sprite.spritecollide(pt, maze.enemies, False)
+    hit_goal = pg.sprite.spritecollide(point, maze.enemies, False)
 
 
 

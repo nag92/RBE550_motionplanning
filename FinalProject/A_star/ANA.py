@@ -39,6 +39,7 @@ class ANA():
         self.start =()
         self.temp = pg.Rect((0, 0), (40, 40))
         self.game = game
+        self.flag = False
 
     def reset(self):
         self.G = 1000000000000000000
@@ -47,16 +48,18 @@ class ANA():
         self.goal = ()
         self.start = ()
 
-    def a_star_search(self, start_loc, goal_loc):
+    def a_star_search(self, start_loc, goal_loc,obs_rects):
         frontier = PriorityQueue()
 
         self.start = start_loc.center
         self.goal = goal_loc.center
+        self.obstacles = obs_rects
         frontier.put(self.start, 0)
         came_from = {}
         cost_so_far = {}
         came_from[self.start] = None
         cost_so_far[self.start] = 0
+        count = 0
 
         while not frontier.empty():
             current = frontier.get()
@@ -78,8 +81,6 @@ class ANA():
     def search(self,start_loc,goal_loc,obs_rects):
 
 
-        # a single (x,y) tuple, representing the end position of the search algorithm
-        difficulty = ""  # a string reference to the original import file
 
         e_list = []
         self.start = start_loc.center
@@ -105,8 +106,12 @@ class ANA():
             # yield path
             # #
             open, came_from, cost_so_far = self.improved_solution(open,came_from,cost_so_far)
+
             path =  self.reconstruct_path(came_from) #came_from, cost_so_far
-            yield path
+
+            print len(path)
+            #print len(self.reduce_path(path))
+            yield self.reduce_path(path)
             open = self.prune(open, cost_so_far)
 
 
@@ -131,7 +136,7 @@ class ANA():
         :param map: maze to search
         :return:
         """
-
+        count = 0
         while not open.empty():
             #time.sleep(0.1)
             item = open.get() # get the next state from the queue
@@ -147,6 +152,7 @@ class ANA():
             if current == self.goal:
                 self.G = cost_so_far[current]
                 return open,came_from, cost_so_far
+
 
             # loop through the neighbours
             for next in self.get_neighbours(current):
@@ -231,27 +237,20 @@ class ANA():
         width, height = sw_helper.WIDTH,sw_helper.HEIGHT
         node_size = 1
         neighbors_in = [(loc_x - node_size, loc_y), (loc_x, loc_y + node_size), (loc_x + node_size, loc_y), (loc_x, loc_y - node_size),
-                        (loc_x - node_size, loc_y-node_size), (loc_x+node_size, loc_y + node_size), (loc_x + node_size, loc_y-node_size),
-                        (loc_x-node_size, loc_y + node_size)]
+                        (loc_x - node_size, loc_y-node_size),(loc_x + node_size, loc_y + node_size),(loc_x + node_size, loc_y - node_size),(loc_x + node_size, loc_y - node_size),]
         neighbors_out = []
 
 
         for option in neighbors_in:
             if (option[0] >= 0 and option[0] < width) and (option[1] >= 0 and option[1] < height):
+
                 self.temp.centerx = option[0]
-                self.temp.centery = option[0]
-                if self.temp.collidelist(self.obstacles) == -1:# not sw_helper.check_point(self.game,option):
+                self.temp.centery = option[1]
+                if self.temp.collidelist(self.obstacles) == -1:#
                     neighbors_out.append(option)
-
-
-
-        #time.sleep(.000000001)
+                    #print time.time()
 
         return neighbors_out
-
-
-
-
 
     def heuristic(self,p1, p2):
         """
@@ -263,4 +262,37 @@ class ANA():
         x = (p1[0] - p2[0]) ** 2
         y = (p1[1] - p2[1]) ** 2
         return math.sqrt(x + y)
+
+
+    def reduce_path(self,path):
+
+        segments = []
+        #segments.append(path[0])
+        previous_node = [0,0]
+
+        for index in xrange(len(path)-1):
+            dy_p = path[index][1] - previous_node[1]
+            dx_p = path[index][0] - previous_node[0]
+
+            dy_n = path[index+1][1] - path[index][1]
+            dx_n = path[index+1][0] - path[index][0]
+
+            if dx_n != 0 and dx_p !=0:
+
+                m1 = dy_p/dx_p
+                m2 = dy_n/dx_n
+
+                if not m1 == m2:
+                    segments.append(path[index])
+
+
+            elif not dx_p == dx_n or not dy_n == dy_p:
+                segments.append(path[index])
+
+
+            previous_node = path[index]
+        segments.append(path[-1])
+        return segments
+
+
 

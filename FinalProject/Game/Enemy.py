@@ -18,8 +18,8 @@ class Enemy(pg.sprite.Sprite):
         self.rect.y = random.randrange(helper.HEIGHT - self.rect.height)
         self.rect.x = random.randrange(helper.WIDTH - self.rect.width)
         self.rect.y = random.randrange(helper.HEIGHT - self.rect.height)
-        self.speedy = random.randrange(-1, 1)
-        self.speedx = random.randrange(-1, 1)
+        self.speedy = random.randrange(-10, 10)
+        self.speedx = random.randrange(-10, 10)
 
     def update(self):
         self.rect.x += self.speedx

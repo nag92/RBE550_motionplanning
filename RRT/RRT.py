@@ -112,18 +112,17 @@ def rrt(maze):
         while not flag:
             node = get_node(maze)
             parent, cost,flag = choose_parent(maze,tree,cost_so_far,node)
-        maze.make_point(node, color_b)
+        #maze.make_point(node, color_b)
         itterations += 1
         tree[node] = parent
         cost_so_far[node] = cost
-        dist = maze.make_vertex(node,parent,color_g)
-        time.sleep(.01)
+        maze.make_vertex(node,parent,color_g)
 
-    make_path(maze,tree,node,start)
+
+    dist =  make_path(maze,tree,node,start)
     return cost_so_far[node],dist,itterations
 #
 
-#
 def rrt_star(maze):
 
     start = maze.get_start()
@@ -146,17 +145,17 @@ def rrt_star(maze):
         while not flag:
 
             node = get_node(maze)
-            maze.make_point(node, color_b)
+            #maze.make_point(node, color_b)
             parent, cost, flag = choose_parent(maze, tree, cost_so_far, node)
 
         tree[node] = parent
         cost_so_far[node] = cost
-
+        itterations += 1
         if not flag:
             tree, cost_so_far = reWire(maze,tree,cost_so_far,node)
-            itterations += 1
+
         maze.make_vertex(node, parent, color_g)
-        time.sleep(0.01)
+
 
     dist = make_path(maze, tree, node, start)
 
@@ -194,7 +193,7 @@ def brrt_star(maze):
         cost = 100000
         while not flag:
             node = get_node(maze)
-            maze.make_point(node, point_a)
+            #maze.make_point(node, point_a)
             parent, cost, flag = choose_parent(maze, tree_a, cost_so_far, node)
 
         tree_a[node] = parent
@@ -213,7 +212,7 @@ def brrt_star(maze):
             point_a,point_b = point_b,point_a
             in_tree_a = not in_tree_a
 
-        time.sleep(0.01)
+
     dist = 0
     if in_tree_a:
         dist1 = make_path(maze, tree_a, node, start)
@@ -226,4 +225,5 @@ def brrt_star(maze):
 
     maze.make_vertex(node, shared_node, (75,0,130), 3)
     total_cost = cost_so_far[node] + cost_so_far[shared_node]
+    print itterations
     return total_cost,dist,itterations
