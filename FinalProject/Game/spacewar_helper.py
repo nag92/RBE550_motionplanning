@@ -4,8 +4,8 @@ import time
 TILESIZE = 64
 GRIDWIDTH = 25
 GRIDHEIGHT = 12
-WIDTH  = 600 #TILESIZE * GRIDWIDTH
-HEIGHT = 600 #TILESIZE * GRIDHEIGHT
+WIDTH  = 800 #TILESIZE * GRIDWIDTH
+HEIGHT = 800 #TILESIZE * GRIDHEIGHT
 # WIDTH = 1200
 # HEIGHT = 800
 FPS = 60
@@ -139,6 +139,14 @@ def check_vertex(maze, point1, point2):
 
 def get_obacle_rects(game):
     enemeis = game.get_obsticals()
+    rects = []
+    for en in enemeis:
+        rects.append(en.rect)
+    return rects
+
+
+def get_enemies_rects(game):
+    enemeis = game.get_enemies()
     rects = []
     for en in enemeis:
         rects.append(en.rect)

@@ -3,6 +3,7 @@ from Player import Player
 from Enemy import Enemy
 from Goal import Goal
 from Node import Node
+from Obstical import Obsticals
 import spacewar_helper as helper
 
 class SpaceWar():
@@ -14,15 +15,18 @@ class SpaceWar():
         self.all_sprites = pg.sprite.Group()
         self.RRT = pg.sprite.Group()
         self.enemies = pg.sprite.Group()
+        self.obsticals = pg.sprite.Group()
         self.goals = pg.sprite.Group()
         self.nodes = pg.sprite.Group()
         self.player = Player(self.all_sprites)
         self.segments = []
-        for i in xrange(2):
+
+        for i in xrange(3):
             self.enemies.add(Enemy(self.all_sprites))
+
         for i in xrange(5):
             self.goals.add(Goal(self.all_sprites))
-
+        #self.make_obsticals()
         self.paused = False
         self.show_vectors = False
         self.last_update = 0
@@ -44,16 +48,20 @@ class SpaceWar():
         pass
 
     def get_goals(self):
+
         return self.goals.sprites()
-        pass
 
     def get_obsticals(self):
+
+        return  self.obsticals.sprites()
+
+    def get_enemies(self):
+
         return  self.enemies.sprites()
-        pass
 
     def get_player(self):
+
         return self.player.rect
-        pass
 
     def draw_line(self,start,finish):
         self.segments.append((start, finish))
@@ -72,12 +80,12 @@ class SpaceWar():
         self.segments = []
 
     def update_score(self):
+
         hit_goal = pg.sprite.spritecollide(self.player, self.goals, False)
         hit_enemies = pg.sprite.spritecollide(self.player, self.enemies, False)
 
         for hit in hit_enemies:
             self.score-=10
-
 
         for hit in hit_goal:
             self.score+=10
@@ -85,8 +93,8 @@ class SpaceWar():
 
         helper.draw_text(self.screen, str(self.score), 18, helper.WIDTH / 2, 10)
 
-
     def keypress(self):
+
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 running = False
@@ -97,6 +105,13 @@ class SpaceWar():
                     paused = not self.paused
                 if event.key == pg.K_v:
                     show_vectors = not self.show_vectors
+
+    def make_obsticals(self):
+        centers = [(400,300), (350,150), (150,175),(175,300),(80,100),(500,500),(10,400), (400,10),(400,400),(700,500),(500,300)]
+        sizes =   [ (100,100),(80,100), (100,20), (100,170),(95,95),(100,80),(80,100), (75,135),(80,80),(100,100),(100,250)]
+
+        for center, size in zip(centers,sizes):
+            self.obsticals.add(Obsticals(self.all_sprites,center,size))
 
     def update(self):
 
