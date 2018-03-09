@@ -5,6 +5,7 @@ from Goal import Goal
 from Node import Node
 from Obstical import Obsticals
 import spacewar_helper as helper
+import random
 
 class SpaceWar():
 
@@ -21,12 +22,29 @@ class SpaceWar():
         self.player = Player(self.all_sprites)
         self.segments = []
 
+        self.make_obsticals()
+        obs_rects = helper.get_obacle_rects(self)
+        temp = pg.Rect((0, 0), (30, 30))
         for i in xrange(3):
-            self.enemies.add(Enemy(self.all_sprites))
+            hit = 0
+            while not hit:
+                temp.centerx = random.randrange(helper.WIDTH  - 15)
+                temp.centery = random.randrange(helper.HEIGHT - 15)
+                hit = temp.collidelist(obs_rects)
+
+            self.enemies.add(Enemy(self.all_sprites,temp.center))
+
 
         for i in xrange(5):
-            self.goals.add(Goal(self.all_sprites))
-        #self.make_obsticals()
+            hit = 0
+            while not hit:
+                temp.centerx = random.randrange(helper.WIDTH - 15)
+                temp.centery = random.randrange(helper.HEIGHT - 15)
+                hit = temp.collidelist(obs_rects)
+
+            self.goals.add(Goal(self.all_sprites,temp.center))
+
+
         self.paused = False
         self.show_vectors = False
         self.last_update = 0
@@ -107,8 +125,8 @@ class SpaceWar():
                     show_vectors = not self.show_vectors
 
     def make_obsticals(self):
-        centers = [(400,300), (350,150), (150,175),(175,300),(80,100),(500,500),(10,400), (400,10),(400,400),(700,500),(500,300)]
-        sizes =   [ (100,100),(80,100), (100,20), (100,170),(95,95),(100,80),(80,100), (75,135),(80,80),(100,100),(100,250)]
+        centers = [(400,300), (50,600), (150,375),(175,300)] #[(400,300), (350,150), (150,175),(175,300),(80,100),(500,500),(10,400), (400,10),(400,400),(700,500),(500,300)]
+        sizes =   [ (100,100),(80,100), (100,20), (100,170)]#[ (100,100),(80,100), (100,20), (100,170),(95,95),(100,80),(80,100), (75,135),(80,80),(100,100),(100,250)]
 
         for center, size in zip(centers,sizes):
             self.obsticals.add(Obsticals(self.all_sprites,center,size))

@@ -49,7 +49,7 @@ def find_path(game):
 
 
        goal =  get_object(game.get_player(),game.get_goals())
-       path =  path_solver.search( game.get_player(), goal, sw_helper.get_enemies_rects(game) )
+       path =  path_solver.search( game.get_player(), goal, sw_helper.get_obacle_rects(game) )
        path_solver.reset()
 
        print "next"
@@ -72,7 +72,7 @@ def find_path(game):
 
                if dist( (state[0],state[1]), pt ) > max_dist:
                    print "here"
-                   path = path_solver.search( game.get_player(), goal, sw_helper.get_enemies_rects(game) )
+                   #path = path_solver.search( game.get_player(), goal, sw_helper.get_enemies_rects(game) )
 
 
 def run(game,cursor):

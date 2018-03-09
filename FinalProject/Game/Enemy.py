@@ -3,7 +3,7 @@ import pygame as pg
 import spacewar_helper as helper
 
 class Enemy(pg.sprite.Sprite):
-    def __init__(self,all_sprites):
+    def __init__(self,all_sprites,center):
 
         self.group = all_sprites
         pg.sprite.Sprite.__init__(self, all_sprites)
@@ -12,10 +12,8 @@ class Enemy(pg.sprite.Sprite):
         self.radius  = 15
         self.mass = 10
         self.rect = self.image.get_rect()
-        self.rect.x = random.randrange(helper.WIDTH - self.rect.width)
-        self.rect.y = random.randrange(helper.HEIGHT - self.rect.height)
-        self.rect.x = random.randrange(helper.WIDTH - self.rect.width)
-        self.rect.y = random.randrange(helper.HEIGHT - self.rect.height)
+
+        self.rect.center = center
         self.speedy = random.randrange(-2, 2)
         self.speedx = random.randrange(-2, 2)
 

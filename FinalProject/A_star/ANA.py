@@ -161,7 +161,6 @@ class ANA():
                     cost_so_far[next] = new_cost  # g(s') = g(s) + c(s.s')
                     came_from[next] = current
 
-
                     if new_cost + self.heuristic(self.goal, next) < self.G:
                         key = self.make_key(next,cost_so_far)
                         open.put(next, key)
@@ -233,12 +232,15 @@ class ANA():
         loc_y = point[1]
         width, height = sw_helper.WIDTH,sw_helper.HEIGHT
         node_size = 1
+
         neighbors_in = [(loc_x - node_size, loc_y), (loc_x, loc_y + node_size), (loc_x + node_size, loc_y), (loc_x, loc_y - node_size),
                         (loc_x - node_size, loc_y-node_size),(loc_x + node_size, loc_y + node_size),(loc_x + node_size, loc_y - node_size),(loc_x + node_size, loc_y - node_size),]
+
         neighbors_out = []
 
 
         for option in neighbors_in:
+
             if (option[0] >= 0 and option[0] < width) and (option[1] >= 0 and option[1] < height):
 
                 self.temp.centerx = option[0]
