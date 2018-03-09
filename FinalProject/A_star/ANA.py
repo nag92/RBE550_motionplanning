@@ -112,7 +112,7 @@ class ANA():
             open = self.prune(open, cost_so_far)
 
 
-        return self.reduce_path(path)
+        return path
 
     def distance(self,p1,p2):
         """

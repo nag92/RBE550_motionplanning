@@ -22,28 +22,29 @@ def find_path(game):
     prev_loc = game.get_player()
     path_solver = Astar.ANA(game)
     attactor = PF.Attractive_Function(1,10)
-    replusor = PF.Repulisive_Function(0.05,2*sw_helper.RADIUS+2)
+    replusor = PF.Repulisive_Function(50000000,2*sw_helper.RADIUS+30)
     alpha = 10
+
     while(1):
 
        path =  path_solver.search( game.get_player(), game.get_goals()[0].rect,sw_helper.get_obacle_rects(game) )
        path_solver.reset()
+
        print "next"
        for pt in path:
            #print cursor.state[0:2]
-           F_a = attactor.get_nabla_U(cursor.state[0:2], np.asarray([ [pt[0]],[pt[1]]] ) )
-           F_r = attactor.get_nabla_U(cursor.state[0:2], np.asarray([[pt[0]], [pt[1]]]))
-
-           while abs(F_r[0]) > 0.1:
-               state = cursor.move( alpha*F_r )
+           F =  attactor.get_nabla_U(cursor.state[0:2], np.asarray([[pt[0]], [pt[1]]]))
+           while abs(F[0]) > 0.005 and abs(F[1]) > 0.005 :
+               print F
+               state = cursor.move( alpha*F )
                game.move_player( state[3],state[4])
-               F_r = attactor.get_nabla_U(cursor.state[0:2], np.asarray([[pt[0]], [pt[1]]]))
-
-               # print 'Force',F
-               # state = cursor.move( alpha*F )
-               # game.move_player( state[3],state[4])
-               # F = attactor.get_nabla_U(cursor.state[0:2], np.asarray([[pt[0]], [pt[1]]]))
-
+               F_a = attactor.get_nabla_U(cursor.state[0:2], np.asarray([[pt[0]], [pt[1]]]))
+               F_r = np.array([[0.0], [0.0], [0.0]])
+               obs = sw_helper.get_obacle_rects(game)
+               for point in obs:
+                   pt_o = point.center
+                   F_r += replusor.get_nabla_U(cursor.state[0:2], np.asarray([[pt_o[0]], [pt_o[1]]]))
+               F = F_a + F_r
 
 
 
