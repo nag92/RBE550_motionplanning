@@ -7,13 +7,10 @@ class Enemy(pg.sprite.Sprite):
 
         self.group = all_sprites
         pg.sprite.Sprite.__init__(self, all_sprites)
-        self.image = pg.Surface((40, 40))
-
-
-        self.image.fill(helper.RED)
-        self.image.fill(helper.RED)
+        self.image = pg.image.load("./Images/Player.png").convert()#pg.Surface((40, 40))
+        #self.image.fill(helper.RED)
         self.mass = 10
-        self.rect = self.image.get_rect()
+        #self.rect = self.image.get_rect()
         self.rect.x = random.randrange(helper.WIDTH - self.rect.width)
         self.rect.y = random.randrange(helper.HEIGHT - self.rect.height)
         self.rect.x = random.randrange(helper.WIDTH - self.rect.width)

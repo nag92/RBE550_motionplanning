@@ -10,41 +10,42 @@ class Player(pg.sprite.Sprite):
 
         groups = all_sprites
         pg.sprite.Sprite.__init__(self, groups)
-        self.image = pg.Surface((30, 30))
-        self.image.fill(helper.GREEN)
+        self.image = pg.image.load("./Images/Player.png").convert()#pg.Surface((30, 30))
+        #self.image.fill(helper.GREEN)
         self.rect = self.image.get_rect()
-        self.pos = vec(helper.WIDTH / 2 - 50, helper.HEIGHT / 2 - 75)
-        self.rect.center = self.pos
-        self.vel = vec(0, 0)
+        self.x = vec(helper.WIDTH / 2 - 50, helper.HEIGHT / 2 - 75)
+        self.rect.center = self.x
+        self.xd = vec(0, 0)
+
 
     def update(self):
-        self.vel = vec(0, 0)
+        self.xd = vec(0, 0)
         self.move_8way()
-        self.pos += self.vel
-        self.rect.center = self.pos
+        self.x += self.xd
+        self.rect.center = self.x
         # prevent sprite from moving off screen
-        if self.pos.x < 0:
-            self.pos.x = 0
-        if self.pos.x > helper.WIDTH:
-            self.pos.x = helper.WIDTH
-        if self.pos.y < 0:
-            self.pos.y = 0
-        if self.pos.y > helper.HEIGHT:
-            self.pos.y = helper.HEIGHT
+        if self.x.x < 0:
+            self.x.x = 0
+        if self.x.x > helper.WIDTH:
+            self.x.x = helper.WIDTH
+        if self.x.y < 0:
+            self.x.y = 0
+        if self.x.y > helper.HEIGHT:
+            self.x.y = helper.HEIGHT
 
     def move_8way(self):
         keystate = pg.key.get_pressed()
         if keystate[pg.K_UP]:
-            self.vel.y = -10
+            self.xd.y = -10
         if keystate[pg.K_DOWN]:
-            self.vel.y = 10
+            self.xd.y = 10
         if keystate[pg.K_LEFT]:
-            self.vel.x = -10
+            self.xd.x = -10
         if keystate[pg.K_RIGHT]:
-            self.vel.x = 10
+            self.xd.x = 10
 
     def update_vel(self,x,y):
-        self.vel.y = y
-        self.vel.x = x
+        self.xd.y = y
+        self.xd.x = x
 
 

@@ -6,8 +6,8 @@ class Goal(pg.sprite.Sprite):
     def __init__(self,all_sprites):
         pg.sprite.Sprite.__init__(self, all_sprites)
         self.group = all_sprites
-        self.image = pg.Surface((40, 40))
-        self.image.fill(helper.CYAN)
+        self.image = pg.image.load("./Images/obs.png").convert()#pg.Surface((40, 40))
+        #self.image.fill(helper.CYAN)
 
         self.mass = 10
         self.rect = self.image.get_rect()
