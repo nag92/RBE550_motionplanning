@@ -9,6 +9,8 @@ class Player(pg.sprite.Sprite):
     def __init__(self,all_sprites):
 
         groups = all_sprites
+        self.radius  = 15
+
         pg.sprite.Sprite.__init__(self, groups)
         self.image = pg.image.load("./Images/Player.png").convert()#pg.Surface((30, 30))
         #self.image.fill(helper.GREEN)
@@ -19,8 +21,8 @@ class Player(pg.sprite.Sprite):
 
 
     def update(self):
-        self.xd = vec(0, 0)
-        self.move_8way()
+        #self.xd = vec(0, 0)
+        #self.move_8way()
         self.x += self.xd
         self.rect.center = self.x
         # prevent sprite from moving off screen

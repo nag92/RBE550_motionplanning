@@ -109,13 +109,10 @@ class ANA():
 
             path =  self.reconstruct_path(came_from) #came_from, cost_so_far
 
-            print len(path)
-            #print len(self.reduce_path(path))
-            yield self.reduce_path(path)
             open = self.prune(open, cost_so_far)
 
 
-        #return path
+        return self.reduce_path(path)
 
     def distance(self,p1,p2):
         """
@@ -267,7 +264,7 @@ class ANA():
     def reduce_path(self,path):
 
         segments = []
-        #segments.append(path[0])
+        segments.append(path[0])
         previous_node = [0,0]
 
         for index in xrange(len(path)-1):
@@ -289,9 +286,12 @@ class ANA():
             elif not dx_p == dx_n or not dy_n == dy_p:
                 segments.append(path[index])
 
-
             previous_node = path[index]
+
         segments.append(path[-1])
+
+
+
         return segments
 
 

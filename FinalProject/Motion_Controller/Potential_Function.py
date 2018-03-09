@@ -35,14 +35,15 @@ class Attractive_Function():
         """
 
         dist = math.sqrt((robot_pos[0] - goal_pos[0]) ** 2 + (robot_pos[1] - goal_pos[1]) ** 2)
-        U = 0
+
 
         if dist <= self.d_threash:
-            U = self.zeta * ( np.asarray(robot_pos) - np.asarray(goal_pos) )
+            U = self.zeta * ( robot_pos - goal_pos )
+
         else:
             U =  (self.d_threash*self.zeta * ( np.asarray(robot_pos) - np.asarray(goal_pos) ))/(dist)
 
-        return U
+        return np.insert(U,2,0,axis=0)
 
 
 
