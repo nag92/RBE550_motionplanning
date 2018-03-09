@@ -22,16 +22,16 @@ def find_path(game):
     prev_loc = game.get_player()
     path_solver = Astar.ANA(game)
     attactor = PF.Attractive_Function(1,10)
-    replusor = PF.Repulisive_Function(10000,2*sw_helper.RADIUS+100)
+    replusor = PF.Repulisive_Function(50000000,2*sw_helper.RADIUS+80)
     print 2*sw_helper.RADIUS+15
-    alpha = 1000
+    alpha = 1
 
     while(1):
 
         #F_r = np.array([ [0],[0],[0]])
-        for point in sw_helper.get_obacle_rects(game):
-            pt = point.center
-            F_r = replusor.get_nabla_U(cursor.state[0:2], np.asarray([[pt[0]], [pt[1]]]))
+        #for point in sw_helper.get_obacle_rects(game):
+        pt = sw_helper.get_obacle_rects(game)[0].center#point.center
+        F_r = replusor.get_nabla_U(cursor.state[0:2], np.asarray([[pt[0]], [pt[1]]]))
         state = cursor.move( alpha*F_r )
         game.move_player( state[3],state[4])
 
