@@ -24,6 +24,7 @@ SEARCH_RANGE = 700
 MOB_SIZE = 16
 MAX_SPEED = 4
 MAX_FORCE = 0.5
+RADIUS = 15
 font_name = pg.font.match_font('arial')
 
 

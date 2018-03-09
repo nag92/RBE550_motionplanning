@@ -7,7 +7,7 @@ class Enemy(pg.sprite.Sprite):
 
         self.group = all_sprites
         pg.sprite.Sprite.__init__(self, all_sprites)
-        self.image = pg.image.load("./Images/Player.png").convert()#pg.Surface((40, 40))
+        self.image = pg.image.load("./Images/obs.png").convert()#pg.Surface((40, 40))
         #self.image.fill(helper.RED)
         self.radius  = 15
         self.mass = 10
@@ -16,8 +16,8 @@ class Enemy(pg.sprite.Sprite):
         self.rect.y = random.randrange(helper.HEIGHT - self.rect.height)
         self.rect.x = random.randrange(helper.WIDTH - self.rect.width)
         self.rect.y = random.randrange(helper.HEIGHT - self.rect.height)
-        self.speedy = random.randrange(-1, 1)
-        self.speedx = random.randrange(-1, 1)
+        self.speedy = random.randrange(-5, 5)
+        self.speedx = random.randrange(-5, 5)
 
     def update(self):
         self.rect.x += self.speedx

@@ -22,22 +22,19 @@ def find_path(game):
     prev_loc = game.get_player()
     path_solver = Astar.ANA(game)
     attactor = PF.Attractive_Function(1,10)
-    replusor = PF.Repulisive_Function(0.05,2*sw_helper.RADIUS+2)
-    alpha = 10
+    replusor = PF.Repulisive_Function(10000,2*sw_helper.RADIUS+100)
+    print 2*sw_helper.RADIUS+15
+    alpha = 1000
+
     while(1):
 
-       path =  path_solver.search( game.get_player(), game.get_goals()[0].rect,sw_helper.get_obacle_rects(game) )
-       path_solver.reset()
-       print "next"
-       for pt in path:
-           #print cursor.state[0:2]
-           F_a = attactor.get_nabla_U(cursor.state[0:2], np.asarray([ [pt[0]],[pt[1]]] ) )
-           F_r = attactor.get_nabla_U(cursor.state[0:2], np.asarray([[pt[0]], [pt[1]]]))
+        #F_r = np.array([ [0],[0],[0]])
+        for point in sw_helper.get_obacle_rects(game):
+            pt = point.center
+            F_r = replusor.get_nabla_U(cursor.state[0:2], np.asarray([[pt[0]], [pt[1]]]))
+        state = cursor.move( alpha*F_r )
+        game.move_player( state[3],state[4])
 
-           while abs(F_r[0]) > 0.1:
-               state = cursor.move( alpha*F_r )
-               game.move_player( state[3],state[4])
-               F_r = attactor.get_nabla_U(cursor.state[0:2], np.asarray([[pt[0]], [pt[1]]]))
 
                # print 'Force',F
                # state = cursor.move( alpha*F )
@@ -58,9 +55,6 @@ def run(game,cursor):
         game.update()
         (x, y) = game.player.rect.center
         cursor.set_state(np.array([[x], [y], [0], [0], [0], [0]]))
-
-        if path and update:
-           game.draw_path(path)
 
 
 if __name__ =="__main__":

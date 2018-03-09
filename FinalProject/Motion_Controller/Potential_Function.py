@@ -65,10 +65,10 @@ class Repulisive_Function():
         U = 0
 
         if dist <= self.Q_star:
-            U = 0.5 * self.eta * (  (1.0/dist) - (1/self.Q_star)  ) ** 2
+            U = 0.5 * self.eta * (  (1.0/dist) - (1.0/self.Q_star)  ) ** 2
         else:
             U = 0
-        return U
+        return np.insert(U,2,0,axis=0)
 
 
     def get_nabla_U(self, robot_pos, obs_pos):
@@ -79,13 +79,14 @@ class Repulisive_Function():
         :return: engery
         """
 
-        dist = math.sqrt((robot_pos[0] - obs_pos[0]) ** 2 + (robot_pos[1] - obs_pos[1]) ** 2)
-        nabla_dist = ( np.asarray(robot_pos) - np.asarray(obs_pos) )/( dist )
+        dist = math.sqrt((robot_pos[0] - obs_pos[0])**2 + (robot_pos[1] - obs_pos[1])**2)
+        nabla_dist = ( robot_pos - obs_pos )/( dist )
         U = 0
 
         if dist <= self.Q_star:
-            U = self.eta * ((1.0 / self.Q_star) - (1 / dist)) * (nabla_dist/(dist*dist))
+            U = self.eta * ((1.0 / self.Q_star) - (1.0 / dist)) * (nabla_dist/(dist*dist))
+            print U
         else:
-            U = 0
+            U = np.array([[0],[0]])
 
-        return U
+        return np.insert(U,2,0,axis=0)
