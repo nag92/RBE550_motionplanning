@@ -1,6 +1,8 @@
 import random
 import pygame as pg
 import spacewar_helper as helper
+vec = pg.math.Vector2
+
 
 class Enemy(pg.sprite.Sprite):
     def __init__(self,all_sprites,center):
@@ -14,20 +16,22 @@ class Enemy(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
 
         self.rect.center = center
-        self.speedy = random.randrange(-2, 2)
-        self.speedx = random.randrange(-2, 2)
+        self.x = vec(center[0],center[1])
+        self.xd = vec(random.randrange(-2, 2), random.randrange(-2, 2))
 
     def update(self):
-        self.rect.x += self.speedx
-        self.rect.y += self.speedy
+
+        self.x += self.xd
+        self.rect.x = self.x.x
+        self.rect.y = self.x.y
 
         if self.rect.bottom >= helper.HEIGHT or self.rect.top <= 0:
-            self.speedy = -self.speedy
+            self.xd.y = -self.xd.y
         if self.rect.right >= helper.WIDTH or self.rect.left <= 0:
-            self.speedx = -self.speedx
+            self.xd.x = -self.xd.x
 
         blocks_hit_list = pg.sprite.spritecollide(self, self.group, False)
         for block in blocks_hit_list:
             if block != self :
-                self.speedy = -self.speedy
-                self.speedx = -self.speedx
+                self.xd.y = -self.xd.y
+                self.xd.x = -self.xd.x
