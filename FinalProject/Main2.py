@@ -12,7 +12,7 @@ import threading
 import FinalProject.Motion_Controller.Cursor as Cursor
 import FinalProject.Motion_Controller.Potential_Function as PF
 import FinalProject.Game.spacewar_helper as sw_helper
-
+import pygame as pg
 
 path = []
 
@@ -32,7 +32,7 @@ def get_object(player,goals):
             max_d = distance
             next_goal = goal
 
-    return next_goal.rect
+    return next_goal
 
 def find_path(game):
 
@@ -42,39 +42,45 @@ def find_path(game):
     prev_loc = game.get_player()
     path_solver = Astar.ANA(game)
     states = []
-    attactor = PF.Attractive_Function(5,10)
-    replusor = PF.Repulisive_Function(1000000000,2*sw_helper.RADIUS+30)
-    alpha = 10
+    attactor = PF.Velocity_Attractive_Function(.05,.06,2,2)
+    replusor = PF.Velocity_Repulsive_Function(900000,10,300)
+    alpha = 1
     epsilon = 0.0005
     max_dist = 100
 
     while len ( game.get_goals() ) > 0 :
 
        goal =  get_object(game.get_player(),game.get_goals())
-       path =  path_solver.search( game.get_player(), goal, sw_helper.get_obacle_rects(game) )
+       #path =  path_solver.search( game.get_player(), goal, sw_helper.get_obacle_rects(game) )
+       #print cursor.state[0:2]
+       F =  attactor.get_nabla_U(game.player, goal)
 
-       for pt in path:
-           #print cursor.state[0:2]
-           F =  attactor.get_nabla_U(cursor.state[0:2], np.asarray([[pt[0]], [pt[1]]]))
+       while dist(game.player.rect.center, goal.rect.center)>29:
 
-           while abs(F[0]) > epsilon and abs(F[1]) > epsilon:
+           F_a = attactor.get_nabla_U( game.player, goal )
+           F_p = move_8way()
+           F_r = np.array([0.0, 0.0, 0.0])
+           obsticals = game.get_enemies()
+           print len(obsticals)
+           for obs in obsticals:
 
-               F_a = attactor.get_nabla_U(cursor.state[0:2], np.asarray([[pt[0]], [pt[1]]]))
-               F_r = np.array([[0.0], [0.0], [0.0]])
-               obs = sw_helper.get_enemies_rects(game)
+               temp = replusor.get_nabla_U(game.player, obs)
+               F_r = np.add(F_r,temp)
 
-               for point in obs:
-                   pt_o = point.center
-                   F_r += replusor.get_nabla_U(cursor.state[0:2], np.asarray([[pt_o[0]], [pt_o[1]]]))
+           print "________________________"
+           F_e = np.add(F_a,F_r)
+           F =  np.add(F_e, F_p)
+           #print "F_r ", F_r
+           print F
+           #forces.append(F)
+           state = cursor.move(alpha * F)
+           states.append(state)
+           game.move_player(state[3], state[4])
 
-               F = F_a + F_r
-               forces.append(F)
-               state = cursor.move(alpha * F)
-               states.append(state)
-               game.move_player(state[3], state[4])
 
-               if dist( (state[0],state[1]), pt ) > max_dist:pass
-                   #path = path_solver.search( game.get_player(), goal, sw_helper.get_enemies_rects(game) )
+           #if dist( (state[0],state[1]), pt ) > max_dist:pass
+               #path = path_solver.search( game.get_player(), goal, sw_helper.get_enemies_rects(game) )
+           
        path_solver.reset()
     plot(states,forces)
 
@@ -133,6 +139,21 @@ def run(game,cursor):
         if path:
            game.draw_path(path)
 
+def move_8way():
+    F_x = 0
+    F_y = 0
+    mag = 80
+    keystate = pg.key.get_pressed()
+    if keystate[pg.K_UP]:
+        F_y = mag
+    if keystate[pg.K_DOWN]:
+        F_y = -mag
+    if keystate[pg.K_LEFT]:
+        F_x = mag
+    if keystate[pg.K_RIGHT]:
+        F_x = -mag
+
+    return  np.array([F_x, F_y, 0])
 
 if __name__ =="__main__":
 

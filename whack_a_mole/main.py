@@ -42,9 +42,9 @@ def find_path(game):
     prev_loc = game.get_player()
     path_solver = Astar.ANA(game)
     states = []
-    attactor = PF.Attractive_Function(5,10)
-    replusor = PF.Repulisive_Function(1000000000,2*sw_helper.RADIUS+30)
-    alpha = 10
+    attactor = PF.Attractive_Function(0.5,10)
+    replusor = PF.Repulisive_Function(0,2*sw_helper.RADIUS+30)
+    alpha = .1
     epsilon = 0.0005
     max_dist = 100
 
@@ -53,6 +53,7 @@ def find_path(game):
        goal =  get_object(game.get_player(),game.get_goals())
        path =  path_solver.search( game.get_player(), goal, sw_helper.get_obacle_rects(game) )
 
+       print "next"
        for pt in path:
            #print cursor.state[0:2]
            F =  attactor.get_nabla_U(cursor.state[0:2], np.asarray([[pt[0]], [pt[1]]]))
@@ -73,13 +74,10 @@ def find_path(game):
                states.append(state)
                game.move_player(state[3], state[4])
 
-               if dist( (state[0],state[1]), pt ) > max_dist:pass
+               if dist( (state[0],state[1]), pt ) > max_dist:
+                   print "here"
                    #path = path_solver.search( game.get_player(), goal, sw_helper.get_enemies_rects(game) )
        path_solver.reset()
-    plot(states,forces)
-
-
-def plot(states,forces):
 
     x = []
     y = []
@@ -88,7 +86,6 @@ def plot(states,forces):
     fy = []
     fz = []
     count = len(states)
-
     for s,f in zip(states,forces):
        fx.append(f[0])
        fy.append(f[1])
@@ -97,21 +94,17 @@ def plot(states,forces):
        y.append(s[1])
        z.append(s[2])
 
+
     plt.subplot(211)
-    plt.set_title("position")
-    plt.ylabel("pixels")
     plt.plot(range(count), x)
     plt.plot(range(count), y)
     plt.plot(range(count), z)
-    #plt.subplot(212)
-    plt.set_title("Force")
-    plt.xlabel("iteration")
-    plt.ylabel("Newtons")
+    plt.subplot(212)
     plt.plot(range(count), fx)
     plt.plot(range(count), fy)
     plt.plot(range(count), fz)
-    #ax = plt.gca()
-    #ax.set_xticklabels([])
+    ax = plt.gca()
+    ax.set_xticklabels([])
 
     plt.show()
 
@@ -126,10 +119,8 @@ def run(game,cursor):
         #game.player.update_vel(5,-5)
         game.update()
         (x, y) = game.player.rect.center
-        cursor.set_state(np.array([[x], [y], [0], [0], [0], [0]]))
+        #cursor.set_state(np.array([[x], [y], [0], [0], [0], [0]]))
 
-        # for pt in path:
-        #     game.add_node(pt)
         if path:
            game.draw_path(path)
 

@@ -90,3 +90,129 @@ class Repulisive_Function():
             U = np.array([[0],[0]])
 
         return np.insert(U,2,0,axis=0)
+
+
+
+class Velocity_Attractive_Function():
+
+    def __init__(self, alpha_p, alpha_v, m, n):
+
+        self.alpha_p = alpha_p
+        self.alpha_v = alpha_v
+        self.m = m
+        self.n = n
+
+
+    def get_U(self,robot_pos,goal_pos):
+        """
+
+        :param robot_pos: position of the robot
+        :param goal_pos: position of the goal
+        :return: engery
+        """
+        dist = math.sqrt( ( robot_pos[0] - goal_pos[0] ) ** 2 + ( robot_pos[1] - goal_pos[1] ) ** 2 )
+        U = 0
+
+
+        if dist <= self.d_threash:
+            U = 0.5 * self.zeta * (dist ** 2)
+        else:
+            U = self.d_threash*self.zeta*dist - 0.5*self.zeta*(self.d_threash ** 2)
+
+        return U
+
+    def get_nabla_U(self, robot, goal):
+        """
+
+        :param robot_pos: position of the robot
+        :param goal_pos: position of the goal
+        :return: engery
+        """
+        vec_pos = robot.x - goal.x
+        dist_pos = math.sqrt((robot.x.x - goal.x.x) ** 2 + (robot.x.y - goal.x.y) ** 2)
+        n = vec_pos/dist_pos
+        F_p = self.m*self.alpha_p*(dist_pos**(self.m-1))*n
+
+        vec_pos = robot.xd - goal.xd
+        dist_pos = math.sqrt((robot.xd.x - goal.xd.x) ** 2 + (robot.xd.y - goal.xd.y) ** 2)
+        n = vec_pos / dist_pos
+        F_v = self.n*self.alpha_v*(dist_pos**(self.m-1))*n
+        F = F_p + F_v
+
+        return np.insert(F,2,0,axis=0)
+
+
+
+
+class Velocity_Attractive_Function():
+
+    def __init__(self, alpha_p, alpha_v, m, n):
+
+        self.alpha_p = alpha_p
+        self.alpha_v = alpha_v
+        self.m = m
+        self.n = n
+
+    def get_nabla_U(self, robot, goal):
+        """
+
+        :param robot_pos: position of the robot
+        :param goal_pos: position of the goal
+        :return: engery
+        """
+        vec_pos = goal.x - robot.x
+        dist_pos = math.sqrt((robot.x.x - goal.x.x) ** 2 + (robot.x.y - goal.x.y) ** 2)
+        n = -vec_pos/dist_pos
+        F_p = self.m*self.alpha_p*(dist_pos**(self.m-1))*n
+
+        vec_vel = goal.xd - robot.xd
+        dist_vel = math.sqrt((robot.xd.x - goal.xd.x) ** 2 + (robot.xd.y - goal.xd.y) ** 2)
+        nv = -vec_vel / (dist_vel+0.001)
+        F_v = self.n*self.alpha_v*(dist_pos**(self.n-1))*nv
+        F = F_p + F_v
+
+        return np.insert(F,2,0,axis=0)
+
+
+class Velocity_Repulsive_Function():
+
+    def __init__(self, eta, a_max, pho_0):
+        self.eta = eta
+        self.a_max = a_max
+        self.pho_0 = pho_0
+
+    def get_nabla_U(self, robot, obs):
+        """
+
+        :param robot_pos: position of the robot
+        :param goal_pos: position of the goal
+        :return: engery
+        """
+
+        dist = math.sqrt((robot.x.x - obs.x.x)**2 + (robot.x.y - obs.x.y)**2)
+        vec = obs.x - robot.x
+        n = -vec/dist
+
+        vel = robot.xd - obs.xd
+        vel_norm = math.sqrt( vel[0]**2 + vel[1]**2 )
+
+        v_ro = vel[0]*n[0] + vel[1]*n[1]
+        v_ro_norm = (robot.xd - obs.xd) - v_ro*n
+
+        pho_m = (v_ro**2)/(2*self.a_max)
+        pho_s = dist
+
+        F1 = (-self.eta /( pho_s - pho_m  )**2) * ( 1 + v_ro/self.a_max ) * n
+        F2 = ((self.eta * v_ro * v_ro_norm  ) / ( pho_s*self.a_max * ( pho_s - pho_m  )**2 ) )
+
+        print "diff", pho_s
+        if 0 < pho_s - pho_m < self.pho_0 and v_ro > 0:
+            F = F1 + F2
+            F = np.insert(F,2,0,axis=0)
+        else:
+            F = np.array([0, 0, 0])
+
+
+        return F
+
+

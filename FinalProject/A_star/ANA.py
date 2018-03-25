@@ -233,11 +233,11 @@ class ANA():
         width, height = sw_helper.WIDTH,sw_helper.HEIGHT
         node_size = 1
 
-        neighbors_in = [(loc_x - node_size, loc_y), (loc_x, loc_y + node_size), (loc_x + node_size, loc_y), (loc_x, loc_y - node_size),
-                        (loc_x - node_size, loc_y-node_size),(loc_x + node_size, loc_y + node_size),(loc_x + node_size, loc_y - node_size),(loc_x + node_size, loc_y - node_size),]
+        neighbors_in = [(loc_x - node_size, loc_y), (loc_x, loc_y + node_size), (loc_x + node_size, loc_y), (loc_x, loc_y - node_size), \
+                        (loc_x - node_size, loc_y - node_size),(loc_x + node_size, loc_y + node_size),(loc_x + node_size, loc_y - node_size),
+                        (loc_x + node_size, loc_y - node_size),]
 
         neighbors_out = []
-
 
         for option in neighbors_in:
 
@@ -262,7 +262,6 @@ class ANA():
         y = (p1[1] - p2[1]) ** 2
         return math.sqrt(x + y)
 
-
     def reduce_path(self,path):
 
         segments = []
@@ -270,20 +269,21 @@ class ANA():
         previous_node = [0,0]
 
         for index in xrange(len(path)-1):
-            dy_p = path[index][1] - previous_node[1]
-            dx_p = path[index][0] - previous_node[0]
+
+            dy_p = path[index][1]   - previous_node[1]
+            dx_p = path[index][0]   - previous_node[0]
 
             dy_n = path[index+1][1] - path[index][1]
             dx_n = path[index+1][0] - path[index][0]
 
-            if dx_n != 0 and dx_p !=0:
+            if dx_n != 0 and dx_p != 0:
 
                 m1 = dy_p/dx_p
                 m2 = dy_n/dx_n
-
-                if not m1 == m2:
+                print "m1",m1
+                print "m2", m2
+                if not (m1 == m2):
                     segments.append(path[index])
-
 
             elif not dx_p == dx_n or not dy_n == dy_p:
                 segments.append(path[index])
@@ -296,5 +296,18 @@ class ANA():
 
         return segments
 
-
+    # def reduce_path(self, path):
+    #     print path
+    #     opPath = []
+    #     dx, dy = (path[1][0] - path[0][0]), (path[1][1] - path[0][1])
+    #     path.append(path[0])
+    #     for ii in xrange(1, len(path) - 1):
+    #         tempDx, tempDy = (path[ii][0] - path[ii + 1][0]), (path[ii][1] - path[ii + 1][1])
+    #         if not ((tempDx != dx) and (tempDy != dy) or
+    #                ((tempDx != dx) and (tempDy == dy)) or
+    #                ((tempDx == dx) and (tempDy != dy))):
+    #             opPath.append(path[ii])
+    #         dx, dy = tempDx, tempDy
+    #     opPath.append(path[-1])
+    #     return opPath
 

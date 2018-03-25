@@ -20,7 +20,7 @@ class Cursor():
         xdd = -np.array(F).reshape(3, 1) / self.mass
         B = np.zeros(shape=(6, 3))
         A = np.identity(6)
-        v_max = 10
+
         B[3, 0] = dt
         B[4, 1] = dt
         B[5, 2] = dt
@@ -29,11 +29,7 @@ class Cursor():
         A[1, 4] = dt
         A[2, 5] = dt
 
-
         self.state = np.dot(A, self.state) + np.dot(B, xdd)
-        self.state[3] = max(-v_max, min(self.state[3], v_max))
-        self.state[4] = max(-v_max, min(self.state[4], v_max))
-        self.state[5] = max(-v_max, min(self.state[5], v_max))
         self.time0 = time.clock()
 
         return self.state

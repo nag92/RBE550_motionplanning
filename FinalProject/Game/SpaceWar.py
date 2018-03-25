@@ -22,12 +22,12 @@ class SpaceWar():
         self.player = Player(self.all_sprites)
         self.segments = []
 
-        self.make_obsticals()
+        #self.make_obsticals()
 
         obs_rects = helper.get_obacle_rects(self)
         temp = pg.Rect((0, 0), (30, 30))
 
-        for i in xrange(3):
+        for i in xrange(10):
             hit = 0
             while hit != -1:
                 temp.centerx = random.randrange(helper.WIDTH  - 30)
@@ -35,7 +35,7 @@ class SpaceWar():
                 hit = temp.collidelist(obs_rects)
 
             self.enemies.add(Enemy(self.all_sprites,temp.center))
-
+        #
         for i in xrange(5):
             hit = 0
             while hit != -1:
@@ -81,14 +81,13 @@ class SpaceWar():
         return self.player.rect
 
     def draw_line(self,start,finish):
-        self.segments.append((start, finish))
 
+        self.segments.append((start, finish))
 
     def draw_path(self,points):
 
         for pt in xrange(len(points)-1):
             self.draw_line(points[pt],points[pt+1])
-
 
     def update_line(self):
 
@@ -121,8 +120,8 @@ class SpaceWar():
                 if event.key == pg.K_SPACE:
                     paused = not self.paused
 
-
     def make_obsticals(self):
+
         centers = [(400,300), (50,600), (150,375),(175,300)] #[(400,300), (350,150), (150,175),(175,300),(80,100),(500,500),(10,400), (400,10),(400,400),(700,500),(500,300)]
         sizes =   [ (100,100),(80,100), (100,20), (100,170)]#[ (100,100),(80,100), (100,20), (100,170),(95,95),(100,80),(80,100), (75,135),(80,80),(100,100),(100,250)]
 
@@ -134,7 +133,6 @@ class SpaceWar():
         if self.running:
             self.clock.tick(helper.FPS)
             now = pg.time.get_ticks()
-
 
             self.keypress()
             if not self.paused:
