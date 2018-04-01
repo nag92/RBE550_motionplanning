@@ -9,7 +9,7 @@ import random
 
 class SpaceWar():
 
-    def __init__(self):
+    def __init__(self,goal_pose=(0,0),number_goal=5,number_obs=3):
         pg.init()
         self.screen = pg.display.set_mode((helper.WIDTH, helper.HEIGHT), pg.DOUBLEBUF | pg.HWSURFACE)
         self.clock = pg.time.Clock()
@@ -27,7 +27,7 @@ class SpaceWar():
         obs_rects = helper.get_obacle_rects(self)
         temp = pg.Rect((0, 0), (30, 30))
 
-        for i in xrange(10):
+        for i in xrange(number_obs):
             hit = 0
             while hit != -1:
                 temp.centerx = random.randrange(helper.WIDTH  - 30)
@@ -35,12 +35,12 @@ class SpaceWar():
                 hit = temp.collidelist(obs_rects)
 
             self.enemies.add(Enemy(self.all_sprites,temp.center))
-        #
-        for i in xrange(5):
+        # #
+        for i in xrange(number_goal):
             hit = 0
             while hit != -1:
-                temp.centerx = random.randrange(helper.WIDTH - 30)
-                temp.centery = random.randrange(helper.HEIGHT - 30)
+                temp.centerx = goal_pose[0]#random.randrange(helper.WIDTH - 30)
+                temp.centery = goal_pose[1]#random.randrange(helper.HEIGHT - 30)
                 hit = temp.collidelist(obs_rects)
 
             self.goals.add(Goal(self.all_sprites,temp.center))

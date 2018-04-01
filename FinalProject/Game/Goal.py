@@ -20,8 +20,8 @@ class Goal(pg.sprite.Sprite):
         self.speedy = 0#random.randrange(-1, 1)
         self.speedx = 0#random.randrange(-1, 1)
         self.x  = vec(center[0], center[1])
-        self.xd = vec(random.randrange(-1, 1), random.randrange(-1, 1))
-
+        # self.xd = vec(random.randrange(-1, 1), random.randrange(-1, 1))
+        self.xd = vec(0, 0)
 
     def update(self):
 
