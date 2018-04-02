@@ -20,7 +20,7 @@ class Cursor():
         xdd = -np.array(F).reshape(3, 1) / self.mass
         B = np.zeros(shape=(6, 3))
         A = np.identity(6)
-        v_max = 10
+        v_max = 5
         B[3, 0] = dt
         B[4, 1] = dt
         B[5, 2] = dt
