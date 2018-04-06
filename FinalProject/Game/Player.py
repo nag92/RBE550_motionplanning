@@ -23,23 +23,23 @@ class Player(pg.sprite.Sprite):
 
         #self.xd = vec(0, 0)
         #self.move_8way()
-        self.x += self.xd
+        #self.x += self.xd
         self.rect.center = self.x
         # prevent sprite from moving off screen
-        if self.x.x < 0:
-            self.x.x = 0
-        if self.x.x > helper.WIDTH:
-            self.x.x = helper.WIDTH
-        if self.x.y < 0:
-            self.x.y = 0
-        if self.x.y > helper.HEIGHT:
-            self.x.y = helper.HEIGHT
+        # if self.x.x < 0:
+        #     self.x.x = 0
+        # if self.x.x > helper.WIDTH:
+        #     self.x.x = helper.WIDTH
+        # if self.x.y < 0:
+        #     self.x.y = 0
+        # if self.x.y > helper.HEIGHT:
+        #     self.x.y = helper.HEIGHT
 
 
 
 
     def update_vel(self,x,y):
-        self.xd.y = y
-        self.xd.x = x
-
+        self.x.y = y
+        self.x.x = x
+        #self.rect.center = self.x
 

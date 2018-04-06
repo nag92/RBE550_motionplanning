@@ -65,6 +65,10 @@ def find_path(game):
     dt_y = dt
     err_y = 0.0
     err_x = 0.0
+    (x, y) = game.player.rect.center
+    F_x = []
+    F_y = []
+    cursor.set_state(np.array([[x], [y], [0], [0], [0], [0]]))
     for i in np.arange(0,(1/.001)+1):
         '''Dynamic change in goal'''
         # new_goal = 2
@@ -79,39 +83,31 @@ def find_path(game):
         # print my_runner.x
         # f = avoid_obstacles(np.array([x_t,y_t]),np.array([xd_t,yd_t]) ,my_runner_y.g)
         # print "obs", np.array([[obstacles[0]],[obstacles[1]]])
-        F = np.array([xdd_t, ydd_t, 0])
-        state = cursor.move(alpha * F)
-        game.move_player(state[3], state[4])
-        err_x = np.asscalar(10*abs(state[0] - x_t))
-        err_y = np.asscalar(10*abs(state[0] - y_t))
+        up = 5 * ( np.array([[x_t],  [y_t],  [0]]) - cursor.state[0:3] )
+        uv = 5 * ( np.array([[xd_t], [yd_t], [0]]) - cursor.state[3:])
 
+        F = np.array([[xdd_t], [ydd_t], [0]]) - up - uv
+        state = cursor.move( F)
+        #game.move_player(state[0], state[1])
+        game.move_player(state[0], state[1])
+        game.update()
+        err_x = np.asscalar(1*abs(state[0] - x_t))
+        err_y = np.asscalar(1*abs(state[1] - y_t))
         X.append(x_t)
         Y.append(y_t)
         X_r.append(state[0])
         Y_r.append(state[1])
+        F_x.append(F[0])
+        F_y.append(F[1])
         #f = repluse.get_nabla_U(np.array([[np.asscalar(x_t)], [np.asscalar(y_t)]]),np.array([[obstacles[0]], [obstacles[1]]]))
     print "stop"
-
-    time_step = np.arange(0, (tau / dt) + 1)
+    time_step = np.arange(0,(1/.001)+1)
     #plt.plot(X, Y)
-    #plt.plot(time_step,X)
-    plt.plot(X, Y)
+    plt.plot(time_step,X)
+    #plt.plot(time_step, F_x)
+    #plt.plot(time_step,F_y)
     plt.show()
-    F = np.array([0, 0, 0])
-    state = cursor.move(alpha * F)
-    game.move_player(state[3], state[4])
 
-    # with open("right_down.csv", "w") as file:
-    #     writer1 = csv.writer(file)
-    #     writer1.writerow(['x', 'y', 'xd', 'yd', 'xdd', 'ydd'])
-    #     while len(game.get_goals()) > 0:
-    #         goal = get_object(game.get_player(), game.get_goals())
-    #         F_p = move_8way()
-    #         state = cursor.move(alpha * F_p)
-    #         states.append(state)
-    #         game.move_player(state[3], state[4])
-    #         writer1.writerow([state[0][0], state[1][0], state[3][0],state[4][0], F_p[0] / 1,F_p[1]])
-    #         print "yo"
 
 def run(game, cursor):
     global path
@@ -121,10 +117,8 @@ def run(game, cursor):
     while 1:
         # game.player.update_vel(5,-5)
         game.update()
-        (x, y) = game.player.rect.center
-        #cursor.set_state(np.array([[x], [y], [0], [0], [0], [0]]))
-
-
+        # (x, y) = game.player.rect.center
+        # cursor.set_state(np.array([[x], [y], [0], [0], [0], [0]]))
 
 def move_8way():
     F_x = 0
@@ -148,8 +142,8 @@ if __name__ == "__main__":
     cursor = Cursor.Cursor(1, 0.01)
     update = True
 
-    t2 = threading.Thread(target=run, args=(game, cursor))
-    t2.start()
-    time.sleep(2)
+    # t2 = threading.Thread(target=run, args=(game, cursor))
+    # t2.start()
+    # time.sleep(2)
     t1 = threading.Thread(target=find_path, args=(game,))
     t1.start()
