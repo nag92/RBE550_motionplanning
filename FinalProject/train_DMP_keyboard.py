@@ -30,10 +30,13 @@ right_y = pd.read_csv('/home/nathaniel/git/RBE550_motionplanning/FinalProject/ke
 
 
 # Or export it in many ways, e.g. a list of tuples
-dmps = [ (left_down_x, left_down_y), (left_up_x,left_up_y), (left_x,left_down_y), (right_down_x,right_down_y), (right_up_x,right_up_y),\
-         (right_x,right_y),(up_x,up_y), (down_x,down_y)]
+# dmps = [ (left_down_x, left_down_y), (left_up_x,left_up_y), (left_down_x,left_down_y), (right_down_x,right_down_y), (right_up_x,right_up_y),\
+#          (right_x,right_y),(up_x,up_y), (down_x,down_y)]
 
-names = [ "left_down", "left_up","left,right_down","right_up","up","down"]
+
+dmps = [  (right_x,right_y),(left_x,left_y) ]
+#names = [ "left_down", "left_up","left", "right","right_down","right_up","up","down"]
+names = ["right","left" ]
 for vals,name in zip(dmps,names):
     T_x = []
     T_y = []

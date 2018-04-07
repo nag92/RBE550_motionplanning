@@ -38,14 +38,14 @@ def get_object(player, goals):
     return next_goal
 
 
-def find_path(game):
+def run(game):
     global path
     path = []
     states = []
     alpha = 0.5
 
-    name_x = "/home/nathaniel/git/RBE550_motionplanning/FinalProject/keyboard_DMP/right_up_x.xml"
-    name_y = "/home/nathaniel/git/RBE550_motionplanning/FinalProject/keyboard_DMP/right_up_y.xml"
+    name_x = "/home/nathaniel/git/RBE550_motionplanning/FinalProject/keyboard_DMP/right_x.xml"
+    name_y = "/home/nathaniel/git/RBE550_motionplanning/FinalProject/keyboard_DMP/right_y.xml"
     n_rfs = 200
     start = game.get_player().center
     goal = game.get_goals()[0].rect.center
@@ -83,8 +83,8 @@ def find_path(game):
         # print my_runner.x
         # f = avoid_obstacles(np.array([x_t,y_t]),np.array([xd_t,yd_t]) ,my_runner_y.g)
         # print "obs", np.array([[obstacles[0]],[obstacles[1]]])
-        up = 5 * ( np.array([[x_t],  [y_t],  [0]]) - cursor.state[0:3] )
-        uv = 5 * ( np.array([[xd_t], [yd_t], [0]]) - cursor.state[3:])
+        up = 50 * ( np.array([[x_t],  [y_t],  [0]]) - cursor.state[0:3] )
+        uv = 50 * ( np.array([[xd_t], [yd_t], [0]]) - cursor.state[3:])
 
         F = np.array([[xdd_t], [ydd_t], [0]]) - up - uv
         state = cursor.move( F)
@@ -109,17 +109,6 @@ def find_path(game):
     plt.show()
 
 
-def run(game, cursor):
-    global path
-    (x, y) = game.player.rect.center
-    cursor.set_state(np.array([[x], [y], [0], [0], [0], [0]]))
-
-    while 1:
-        # game.player.update_vel(5,-5)
-        game.update()
-        # (x, y) = game.player.rect.center
-        # cursor.set_state(np.array([[x], [y], [0], [0], [0], [0]]))
-
 def move_8way():
     F_x = 0
     F_y = 0
@@ -138,12 +127,9 @@ def move_8way():
 
 
 if __name__ == "__main__":
-    game = FinalProject.Game.SpaceWar.SpaceWar((500,100),1,0)
+    game = FinalProject.Game.SpaceWar.SpaceWar((300,100),1,0)
     cursor = Cursor.Cursor(1, 0.01)
     update = True
 
-    # t2 = threading.Thread(target=run, args=(game, cursor))
-    # t2.start()
-    # time.sleep(2)
-    t1 = threading.Thread(target=find_path, args=(game,))
+    t1 = threading.Thread(target=run, args=(game,))
     t1.start()
