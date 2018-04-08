@@ -17,7 +17,7 @@ class Enemy(pg.sprite.Sprite):
 
         self.rect.center = center
         self.x = vec(center[0],center[1])
-        self.xd = vec(random.randrange(-1, 1), random.randrange(-1, 1))
+        self.xd = vec(0, 0)#vec(random.randrange(-1, 1), random.randrange(-1, 1))
 
     def update(self):
 

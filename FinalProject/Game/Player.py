@@ -14,7 +14,7 @@ class Player(pg.sprite.Sprite):
         self.image = pg.image.load("./Images/Player.png").convert()#pg.Surface((30, 30))
         #self.image.fill(helper.GREEN)
         self.rect = self.image.get_rect()
-        self.x = vec(helper.WIDTH / 3 - 100, helper.HEIGHT / 3 - 100)
+        self.x = vec(helper.WIDTH / 2 - 100, helper.HEIGHT / 2 - 100)
         self.rect.center = self.x
         self.xd = vec(0, 0)
 
