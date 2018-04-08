@@ -11,7 +11,9 @@ import FinalProject.Game.spacewar_helper as sw_helper
 
 
 full_path = "/home/nathaniel/git/RBE550_motionplanning/FinalProject/keyboard_DMP/"
-replusor = PF.Repulisive_Function(900000000000, 2 * sw_helper.RADIUS + 100)
+replusor = PF.Repulisive_Function(900000000000, 2 * sw_helper.RADIUS + 30)
+attactor = PF.Attractive_Function(0, 10)
+DMP_force = PF.DMP_Potential_Function(120,60/np.pi)
 
 
 def get_DMP(player,goal):
@@ -67,15 +69,37 @@ def get_obs_force(cursor,game):
 
     return F_r
 
+def get_goal_force(cursor, goal):
+    player = np.asarray([np.asscalar(cursor.state[0]), np.asscalar(cursor.state[1])])
+    goal_pt = np.asarray([[goal.rect.centerx], [goal.rect.centery]])
+    return attactor.get_nabla_U( player, goal_pt )
+
+
+def get_force(cursor, game, goal):
+
+    obs = sw_helper.get_enemies_rects(game)
+    F_r = np.array([[0], [0]])
+    goal_pt = np.asarray([[goal.rect.centerx], [goal.rect.centery]])
+    #temp = [ np.asscalar(x[0]) for x in cursor.state  ]
+    # print "temp", temp
+    # for point in obs:
+    #     pt = point.center
+    #     player = np.asarray([np.asscalar(cursor.state[0]), np.asscalar(cursor.state[1])])
+    #     obstical = np.array([[pt[0]], [pt[1]]])
+    #     F_r = F_r + DMP_force.static_force(temp,obstical,goal_pt)
+
+    return F_r
+
+
 def run(game, cursor):
 
     dt = 0.001
 
     (x, y) = game.player.rect.center
-    cursor.set_state(np.array([[np.array([x])], [np.array([y])], [0], [0], [0], [0]]))
+    cursor.set_state(np.array([[x], [y], [0], [0], [0], [0]]))
     X = []
     Y = []
-    F_r = np.array([[0], [0]])
+    total_force = np.array([[0], [0]])
     while len(game.get_goals()) > 0:
 
         goal = get_goal(game.get_player(), game.get_goals())
@@ -89,8 +113,8 @@ def run(game, cursor):
 
         for _ in np.arange(0, (tau / dt) + 1):
 
-            (x_t, xd_t, xdd_t) = runner_x.step(tau, dt, error=err_x,externail_force=F_r[0])
-            (y_t, yd_t, ydd_t) = runner_y.step(tau, dt, error=err_y,externail_force=F_r[1])
+            (x_t, xd_t, xdd_t) = runner_x.step(tau, dt, error=err_x,externail_force=total_force[0])
+            (y_t, yd_t, ydd_t) = runner_y.step(tau, dt, error=err_y,externail_force=total_force[1])
 
             up = 20 * (np.array([[x_t],   [y_t], [0]]) - cursor.state[0:3])
             uv = 20 * (np.array([[xd_t], [yd_t], [0]]) - cursor.state[3:])
@@ -100,7 +124,11 @@ def run(game, cursor):
             err_x = np.asscalar(0.1 * abs(cursor.state[0] - x_t))[0]
             err_y = np.asscalar(0.1 * abs(cursor.state[1] - y_t))[0]
             F_r = get_obs_force(cursor,game)
-            #print F_r[0]
+            F_a = get_goal_force(cursor,goal)
+
+            F =  get_force(cursor,game,goal)
+            print cursor.state
+            total_force = F_r + F_a
             X.append(cursor.state[0])
             Y.append(cursor.state[1])
             game.move_player(cursor.state[0], cursor.state[1])

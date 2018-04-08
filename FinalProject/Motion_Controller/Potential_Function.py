@@ -142,8 +142,6 @@ class Velocity_Attractive_Function():
         return np.insert(F,2,0,axis=0)
 
 
-
-
 class Velocity_Attractive_Function():
 
     def __init__(self, alpha_p, alpha_v, m, n):
@@ -214,5 +212,74 @@ class Velocity_Repulsive_Function():
 
 
         return F
+
+
+class DMP_Potential_Function():
+
+    def __init__(self,gamma,beta):
+
+        self.gamma = gamma
+        self.beta = beta
+        self.R_halfpi = np.array([[np.cos(np.pi / 2.0), -np.sin(np.pi / 2.0)],
+                                  [np.sin(np.pi / 2.0), np.cos(np.pi / 2.0)]])
+
+    def static_force(self,cursor,obstical,goal):
+        p = np.zeros(2)
+        # based on (Hoffmann, 2009)
+        print "cursor",cursor
+        y = cursor[0:2]
+        dy = cursor[2:5]
+        # if we're moving
+        if np.linalg.norm(dy) > 1e-5:
+
+            # get the angle we're heading in
+            phi_dy = -np.arctan2(dy[1], dy[0])
+            R_dy = np.array([[np.cos(phi_dy), -np.sin(phi_dy)],
+                             [np.sin(phi_dy), np.cos(phi_dy)]])
+            # calculate vector to object relative to body
+
+            obj_vec = obstical - y
+
+            # rotate it by the direction we're going
+            obj_vec = np.dot(R_dy, obj_vec)
+            # calculate the angle of obj relative to the direction we're going
+            phi = np.arctan2(obj_vec[1], obj_vec[0])
+
+            dphi = self.gamma * phi * np.exp(-self.beta * abs(phi))
+            R = np.dot(self.R_halfpi, np.outer(obstical - y, dy))
+            pval = -np.nan_to_num(np.dot(R, dy) * dphi)
+
+            # check to see if the distance to the obstacle is further than
+            # the distance to the target, if it is, ignore the obstacle
+            if np.linalg.norm(obj_vec) > np.linalg.norm(goal - y):
+                pval = 0
+
+            p += pval
+        return p
+
+
+    def velocity_force(self,cursor,obstical,goal):
+        p = np.zeros(2)
+        # based on (Hoffmann, 2009)
+        y = cursor[0:2]
+        dy = cursor[2:5]
+        o = np.array( [ [ obstical.x.x ], [ obstical.x.y ]])
+        do = np.array( [ [ obstical.xd.x ], [ obstical.xd.y ]])
+        # if we're moving
+
+        if np.linalg.norm(dy) > 1e-5:
+
+            o_y = o - y
+            do_dy = do - dy
+            mag = np.linalg.norm(do_dy) * np.linalg.norm(o_y)
+            vec = np.dot(np.transpose(o_y),o_y)
+            phi = np.cos(vec/mag)
+            p = self.gamma * self.R_halfpi * do_dy * phi * np.exp(-self.beta * phi  )
+
+
+        return p
+
+
+
 
 

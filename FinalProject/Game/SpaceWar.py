@@ -74,7 +74,7 @@ class SpaceWar():
 
     def get_enemies(self):
 
-        return  self.enemies.sprites()
+        return self.enemies.sprites()
 
     def get_player(self):
 
