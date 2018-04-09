@@ -252,7 +252,7 @@ class DMP_Potential_Function():
 
             # check to see if the distance to the obstacle is further than
             # the distance to the target, if it is, ignore the obstacle
-            if np.linalg.norm(obj_vec) > np.linalg.norm(goal - y):
+            if np.linalg.norm(obj_vec) > np.linalg.norm(goal - y) or np.linalg.norm(obj_vec) > 80  :
                 p = np.array([[0],[0]])
 
         return np.insert(p,2,0,axis=0)

@@ -30,8 +30,8 @@ class SpaceWar():
         for i in xrange(number_obs):
             hit = 0
             while hit != -1:
-                temp.centerx = 300 #random.randrange(helper.WIDTH  - 30)
-                temp.centery = 250 #random.randrange(helper.HEIGHT - 30)
+                temp.centerx = random.randrange(helper.WIDTH  - 30)
+                temp.centery = random.randrange(helper.HEIGHT - 30)
                 hit = temp.collidelist(obs_rects)
 
             self.enemies.add(Enemy(self.all_sprites,temp.center))
@@ -39,8 +39,8 @@ class SpaceWar():
         for i in xrange(number_goal):
             hit = 0
             while hit != -1:
-                temp.centerx = 300 #random.randrange(helper.WIDTH - 30)
-                temp.centery = 150 #random.randrange(helper.HEIGHT - 30)
+                temp.centerx = random.randrange(helper.WIDTH - 30)
+                temp.centery = random.randrange(helper.HEIGHT - 30)
                 hit = temp.collidelist(obs_rects)
 
             self.goals.add(Goal(self.all_sprites,temp.center))

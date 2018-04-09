@@ -13,7 +13,7 @@ import FinalProject.Game.spacewar_helper as sw_helper
 full_path = "/home/nathaniel/git/RBE550_motionplanning/FinalProject/keyboard_DMP/"
 replusor = PF.Repulisive_Function(900000000000, 2 * sw_helper.RADIUS + 30)
 attactor = PF.Attractive_Function(0, 10)
-DMP_force = PF.DMP_Potential_Function(350,15/np.pi)
+DMP_force = PF.DMP_Potential_Function(500,10/np.pi)
 
 
 def get_DMP(player,goal):
@@ -170,7 +170,7 @@ def move_8way():
 
 
 if __name__ == "__main__":
-    game = FinalProject.Game.SpaceWar.SpaceWar((600,300),1,1)
+    game = FinalProject.Game.SpaceWar.SpaceWar((600,300),5,5)
     cursor = Cursor.Cursor(1, 0.01)
     update = True
 
