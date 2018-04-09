@@ -36,7 +36,6 @@ class Attractive_Function():
 
         dist = math.sqrt((robot_pos[0] - goal_pos[0]) ** 2 + (robot_pos[1] - goal_pos[1]) ** 2)
 
-
         if dist <= self.d_threash:
             U = self.zeta * ( robot_pos - goal_pos )
 
@@ -80,12 +79,12 @@ class Repulisive_Function():
         """
 
         dist = math.sqrt((robot_pos[0] - obs_pos[0])**2 + (robot_pos[1] - obs_pos[1])**2)
-        nabla_dist = ( robot_pos - obs_pos )/( dist )
+        nabla_dist = (  robot_pos - obs_pos )/( dist )
+
         U = 0
 
         if dist <= self.Q_star:
             U = self.eta * ((1.0 / self.Q_star) - (1.0 / dist)) * (nabla_dist/(dist*dist))
-            print U
         else:
             U = np.array([[0],[0]])
 
@@ -203,7 +202,6 @@ class Velocity_Repulsive_Function():
         F1 = (-self.eta /( pho_s - pho_m  )**2) * ( 1 + v_ro/self.a_max ) * n
         F2 = ((self.eta * v_ro * v_ro_norm  ) / ( pho_s*self.a_max * ( pho_s - pho_m  )**2 ) )
 
-        print "diff", pho_s
         if 0 < pho_s - pho_m < self.pho_0 and v_ro > 0:
             F = F1 + F2
             F = np.insert(F,2,0,axis=0)
@@ -230,7 +228,6 @@ class DMP_Potential_Function():
         y = cursor[0:2]
         dy = cursor[3:5]
         # if we're moving
-        print "dy",dy
         if np.linalg.norm(dy) > 1e-5:
 
             # get the angle we're heading in
@@ -269,19 +266,16 @@ class DMP_Potential_Function():
         do = np.array([[obstical.xd.x], [obstical.xd.y]])
         o = np.array([[obstical.x.x], [obstical.x.y]])
         # if we're moving
-        print "dy", dy
         if np.linalg.norm(dy) > 1e-5:
 
             # get the angle we're heading in
 
             phi_dy = -np.arctan2(dy[1][0] - do[0], dy[0][0] - do[1])[0]
-            print "asdfasd",phi_dy
             R_dy = np.array([[np.cos(phi_dy), -np.sin(phi_dy)],
                              [np.sin(phi_dy), np.cos(phi_dy)]])
             # calculate vector to object relative to body
 
             obj_vec = o - y
-            print "vec", obj_vec
             # rotate it by the direction we're going
             obj_vec = np.dot(R_dy, obj_vec)
             # calculate the angle of obj relative to the direction we're going

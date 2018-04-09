@@ -13,8 +13,9 @@ import FinalProject.Game.spacewar_helper as sw_helper
 full_path = "/home/nathaniel/git/RBE550_motionplanning/FinalProject/keyboard_DMP/"
 replusor = PF.Repulisive_Function(900000000000, 2 * sw_helper.RADIUS + 30)
 attactor = PF.Attractive_Function(0, 10)
+replusor_vel = PF.Velocity_Repulsive_Function(900000000000,10,70 )
 DMP_force_static = PF.DMP_Potential_Function(500, 10 / np.pi)
-DMP_force_dynamic = PF.DMP_Potential_Function(500, 10 / np.pi)
+DMP_force_dynamic = PF.DMP_Potential_Function(500, 60 / np.pi)
 
 
 def get_DMP(player,goal):
@@ -56,20 +57,37 @@ def get_goal(player, goals):
 
     return next_goal
 
-def get_obs_force(cursor,game):
+
+def get_vel_env_force(game,goal):
+    # F_r = np.array([[0.0], [0.0], [0.0]])
+    obs = game.get_enemies()
+    #player = np.asarray([[np.asscalar(cursor.state[0])], [np.asscalar(cursor.state[1])]])
+    goal_pose = np.asarray([[goal.rect.centerx], [goal.rect.centery]])
+    F_r = np.array([[0], [0], [0]])
+    for point in obs:
+        #obstical = np.array([[pt[0]], [pt[1]]])
+        temp =  np.asarray(replusor_vel.get_nabla_U(game.player, point)).reshape((3,1))
+        F_r = np.add(F_r, temp)
+
+    return F_r  # + F_a
+
+
+def get_static_env_force(cursor,game,goal):
 
     #F_r = np.array([[0.0], [0.0], [0.0]])
     obs = sw_helper.get_enemies_rects(game)
+    player = np.asarray([[np.asscalar(cursor.state[0])], [np.asscalar(cursor.state[1])]])
+    goal_pose = np.asarray([[goal.rect.centerx], [goal.rect.centery]])
     F_r = np.array([[0],[0],[0]])
-
+    F_a = attactor.get_nabla_U(player,goal_pose)
     for point in obs:
         pt = point.center
-        player = np.asarray([ np.asscalar(cursor.state[0]), np.asscalar(cursor.state[1])])
+
         obstical = np.array([[pt[0]], [pt[1]]])
         F_r = replusor.get_nabla_U( player, obstical )
-        print "yo"
 
-    return F_r
+    return F_r #+ F_a
+
 
 def get_goal_force(cursor, goal):
     player = np.asarray([np.asscalar(cursor.state[0]), np.asscalar(cursor.state[1])])
@@ -91,9 +109,6 @@ def get_force(cursor, game, goal):
 
         F_r = np.add( F_r , temp)
 
-
-    #F_r = np.array([[0], [0],[0]])
-
     return F_r
 
 
@@ -108,12 +123,7 @@ def get_force_dynamic(cursor, game, goal):
         player = np.asarray([np.asscalar(cursor.state[0]), np.asscalar(cursor.state[1])])
         #obstical = np.array([[pt[0]], [pt[1]]])
         temp = DMP_force_static.velocity_force(cursor.state, point, goal_pt)
-        print "temp", temp
-        print "F_r", F_r
         F_r = np.add( F_r , temp)
-        print "sum",F_r
-
-    #F_r = np.array([[0], [0],[0]])
 
     return F_r
 
@@ -125,7 +135,6 @@ def run(game, cursor):
     cursor.set_state(np.array([[x], [y], [0], [0], [0], [0]]))
     X = []
     Y = []
-    total_force = np.array([[0], [0]])
     while len(game.get_goals()) > 0:
 
         goal = get_goal(game.get_player(), game.get_goals() )
@@ -140,11 +149,11 @@ def run(game, cursor):
         print "-----------------------------"
         for _ in np.arange(0, (tau / dt) + 1):
 
-            (x_t, xd_t, xdd_t) = runner_x.step(tau, dt,error=err_x, externail_force=-F[0])
-            (y_t, yd_t, ydd_t) = runner_y.step(tau, dt,error=err_y, externail_force=-F[1])
+            (x_t, xd_t, xdd_t) = runner_x.step(tau, dt,error=err_x, externail_force=F[0])
+            (y_t, yd_t, ydd_t) = runner_y.step(tau, dt,error=err_y, externail_force=F[1])
 
-            up = 20 * (np.array([[x_t],   [y_t], [0]]) - cursor.state[0:3])
-            uv = 20 * (np.array([[xd_t], [yd_t], [0]]) - cursor.state[3:])
+            up = 50 * (np.array([[x_t],   [y_t], [0]]) - cursor.state[0:3])
+            uv = 50 * (np.array([[xd_t], [yd_t], [0]]) - cursor.state[3:])
 
             F = np.array([[xdd_t], [ydd_t], [0]]) - up - uv
 
@@ -153,12 +162,11 @@ def run(game, cursor):
             cursor.move(F)
             err_x = 0.1 * abs(cursor.state[0] - x_t)[0]
             err_y = 0.1 * abs(cursor.state[1] - y_t)[0]
-            # F_r = get_obs_force(cursor,game)
-            # F_a = get_goal_force(cursor,goal)
-
-            #F = get_force(cursor,game,goal)
-
-            F =  get_force_dynamic(cursor, game, goal)
+            #F = get_static_env_force(cursor,game,goal)
+            F =  -get_vel_env_force(game,goal)
+            print "f1", F
+            #F = get_force_dynamic(cursor, game, goal)
+            #print "f2", F
             X.append(cursor.state[0])
             Y.append(cursor.state[1])
             game.move_player(cursor.state[0], cursor.state[1])
