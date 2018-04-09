@@ -230,13 +230,14 @@ class DMP_Potential_Function():
         y = cursor[0:2]
         dy = cursor[3:5]
         # if we're moving
+        print "dy",dy
         if np.linalg.norm(dy) > 1e-5:
 
             # get the angle we're heading in
 
             phi_dy = -np.arctan2(dy[1][0], dy[0][0])
-            R_dy = np.array([[np.cos(phi_dy), -np.sin(phi_dy)],
-                             [np.sin(phi_dy), np.cos(phi_dy)]])
+            R_dy   =  np.array([[np.cos(phi_dy), -np.sin(phi_dy)],
+                                [np.sin(phi_dy), np.cos(phi_dy)]])
             # calculate vector to object relative to body
 
             obj_vec = obstical - y
@@ -259,27 +260,41 @@ class DMP_Potential_Function():
 
 
     def velocity_force(self,cursor,obstical,goal):
-        p = np.zeros(2)
-        # based on (Hoffmann, 2009)
-        y = cursor[0:2]
-        dy = cursor[2:5]
-        o = np.array( [ [ obstical.x.x ], [ obstical.x.y ]])
-        do = np.array( [ [ obstical.xd.x ], [ obstical.xd.y ]])
-        # if we're moving
 
+
+        # based on (Hoffmann, 2009)
+        p = np.array([[0], [0]])
+        y = cursor[0:2]
+        dy = cursor[3:5]
+        do = np.array([[obstical.xd.x], [obstical.xd.y]])
+        o = np.array([[obstical.x.x], [obstical.x.y]])
+        # if we're moving
+        print "dy", dy
         if np.linalg.norm(dy) > 1e-5:
 
-            o_y = o - y
-            do_dy = do - dy
-            mag = np.linalg.norm(do_dy) * np.linalg.norm(o_y)
-            vec = np.dot(np.transpose(o_y),o_y)
-            phi = np.cos(vec/mag)
-            p = self.gamma * self.R_halfpi * do_dy * phi * np.exp(-self.beta * phi  )
+            # get the angle we're heading in
 
+            phi_dy = -np.arctan2(dy[1][0] - do[0], dy[0][0] - do[1])[0]
+            print "asdfasd",phi_dy
+            R_dy = np.array([[np.cos(phi_dy), -np.sin(phi_dy)],
+                             [np.sin(phi_dy), np.cos(phi_dy)]])
+            # calculate vector to object relative to body
 
-        return p
+            obj_vec = o - y
+            print "vec", obj_vec
+            # rotate it by the direction we're going
+            obj_vec = np.dot(R_dy, obj_vec)
+            # calculate the angle of obj relative to the direction we're going
+            phi = np.arctan2(obj_vec[1][0], obj_vec[0][0])
 
+            dphi = self.gamma * phi * np.exp(-self.beta * abs(phi))
+            R = np.dot(self.R_halfpi, np.outer(o - y, dy))
+            p = -np.nan_to_num(np.dot(R, dy) * dphi)
 
+            # check to see if the distance to the obstacle is further than
+            # the distance to the target, if it is, ignore the obstacle
+            if np.linalg.norm(obj_vec) > np.linalg.norm(goal - y) or np.linalg.norm(obj_vec) > 80:
+                p = np.array([[0], [0]])
 
-
+        return np.insert(p, 2, 0, axis=0)
 

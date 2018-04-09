@@ -13,7 +13,8 @@ import FinalProject.Game.spacewar_helper as sw_helper
 full_path = "/home/nathaniel/git/RBE550_motionplanning/FinalProject/keyboard_DMP/"
 replusor = PF.Repulisive_Function(900000000000, 2 * sw_helper.RADIUS + 30)
 attactor = PF.Attractive_Function(0, 10)
-DMP_force = PF.DMP_Potential_Function(500,10/np.pi)
+DMP_force_static = PF.DMP_Potential_Function(500, 10 / np.pi)
+DMP_force_dynamic = PF.DMP_Potential_Function(500, 10 / np.pi)
 
 
 def get_DMP(player,goal):
@@ -86,7 +87,27 @@ def get_force(cursor, game, goal):
         pt = point.center
         player = np.asarray([np.asscalar(cursor.state[0]), np.asscalar(cursor.state[1])])
         obstical = np.array([[pt[0]], [pt[1]]])
-        temp = DMP_force.static_force(cursor.state,obstical,goal_pt).reshape((3,1))
+        temp = DMP_force_static.static_force(cursor.state, obstical, goal_pt).reshape((3, 1))
+
+        F_r = np.add( F_r , temp)
+
+
+    #F_r = np.array([[0], [0],[0]])
+
+    return F_r
+
+
+
+def get_force_dynamic(cursor, game, goal):
+
+    obs = game.get_enemies()
+    F_r = np.array([[0], [0],[0]])
+    goal_pt = np.asarray([[goal.rect.centerx], [goal.rect.centery]])
+    #temp = [ np.asscalar(x[0]) for x in cursor.state  ]
+    for point in obs:
+        player = np.asarray([np.asscalar(cursor.state[0]), np.asscalar(cursor.state[1])])
+        #obstical = np.array([[pt[0]], [pt[1]]])
+        temp = DMP_force_static.velocity_force(cursor.state, point, goal_pt)
         print "temp", temp
         print "F_r", F_r
         F_r = np.add( F_r , temp)
@@ -95,7 +116,6 @@ def get_force(cursor, game, goal):
     #F_r = np.array([[0], [0],[0]])
 
     return F_r
-
 
 def run(game, cursor):
 
@@ -136,8 +156,9 @@ def run(game, cursor):
             # F_r = get_obs_force(cursor,game)
             # F_a = get_goal_force(cursor,goal)
 
-            F = get_force(cursor,game,goal)
+            #F = get_force(cursor,game,goal)
 
+            F =  get_force_dynamic(cursor, game, goal)
             X.append(cursor.state[0])
             Y.append(cursor.state[1])
             game.move_player(cursor.state[0], cursor.state[1])
