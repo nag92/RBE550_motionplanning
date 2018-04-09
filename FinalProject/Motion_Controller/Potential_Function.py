@@ -226,14 +226,15 @@ class DMP_Potential_Function():
     def static_force(self,cursor,obstical,goal):
         p = np.zeros(2)
         # based on (Hoffmann, 2009)
-        print "cursor",cursor
+
         y = cursor[0:2]
-        dy = cursor[2:5]
+        dy = cursor[3:5]
         # if we're moving
         if np.linalg.norm(dy) > 1e-5:
 
             # get the angle we're heading in
-            phi_dy = -np.arctan2(dy[1], dy[0])
+
+            phi_dy = -np.arctan2(dy[1][0], dy[0][0])
             R_dy = np.array([[np.cos(phi_dy), -np.sin(phi_dy)],
                              [np.sin(phi_dy), np.cos(phi_dy)]])
             # calculate vector to object relative to body
@@ -243,19 +244,18 @@ class DMP_Potential_Function():
             # rotate it by the direction we're going
             obj_vec = np.dot(R_dy, obj_vec)
             # calculate the angle of obj relative to the direction we're going
-            phi = np.arctan2(obj_vec[1], obj_vec[0])
+            phi = np.arctan2(obj_vec[1][0], obj_vec[0][0])
 
             dphi = self.gamma * phi * np.exp(-self.beta * abs(phi))
             R = np.dot(self.R_halfpi, np.outer(obstical - y, dy))
-            pval = -np.nan_to_num(np.dot(R, dy) * dphi)
+            p = -np.nan_to_num(np.dot(R, dy) * dphi)
 
             # check to see if the distance to the obstacle is further than
             # the distance to the target, if it is, ignore the obstacle
             if np.linalg.norm(obj_vec) > np.linalg.norm(goal - y):
-                pval = 0
+                p = np.array([[0],[0]])
 
-            p += pval
-        return p
+        return np.insert(p,2,0,axis=0)
 
 
     def velocity_force(self,cursor,obstical,goal):

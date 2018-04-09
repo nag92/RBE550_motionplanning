@@ -13,7 +13,7 @@ import FinalProject.Game.spacewar_helper as sw_helper
 full_path = "/home/nathaniel/git/RBE550_motionplanning/FinalProject/keyboard_DMP/"
 replusor = PF.Repulisive_Function(900000000000, 2 * sw_helper.RADIUS + 30)
 attactor = PF.Attractive_Function(0, 10)
-DMP_force = PF.DMP_Potential_Function(150,100/np.pi)
+DMP_force = PF.DMP_Potential_Function(350,15/np.pi)
 
 
 def get_DMP(player,goal):
@@ -65,7 +65,8 @@ def get_obs_force(cursor,game):
         pt = point.center
         player = np.asarray([ np.asscalar(cursor.state[0]), np.asscalar(cursor.state[1])])
         obstical = np.array([[pt[0]], [pt[1]]])
-        F_r =  F_r +  replusor.get_nabla_U( player, obstical )
+        F_r = replusor.get_nabla_U( player, obstical )
+        print "yo"
 
     return F_r
 
@@ -78,15 +79,20 @@ def get_goal_force(cursor, goal):
 def get_force(cursor, game, goal):
 
     obs = sw_helper.get_enemies_rects(game)
-    F_r = np.array([[0], [0]])
+    F_r = np.array([[0], [0],[0]])
     goal_pt = np.asarray([[goal.rect.centerx], [goal.rect.centery]])
     #temp = [ np.asscalar(x[0]) for x in cursor.state  ]
-    # print "temp", temp
-    # for point in obs:
-    #     pt = point.center
-    #     player = np.asarray([np.asscalar(cursor.state[0]), np.asscalar(cursor.state[1])])
-    #     obstical = np.array([[pt[0]], [pt[1]]])
-    #     F_r = F_r + DMP_force.static_force(temp,obstical,goal_pt)
+    for point in obs:
+        pt = point.center
+        player = np.asarray([np.asscalar(cursor.state[0]), np.asscalar(cursor.state[1])])
+        obstical = np.array([[pt[0]], [pt[1]]])
+        temp = DMP_force.static_force(cursor.state,obstical,goal_pt).reshape((3,1))
+        print "temp", temp
+        print "F_r", F_r
+        F_r = np.add( F_r , temp)
+        print "sum",F_r
+
+    #F_r = np.array([[0], [0],[0]])
 
     return F_r
 
@@ -110,30 +116,28 @@ def run(game, cursor):
         err_x = 0
         err_y = 0
         tau = dist(cursor.state,goal.rect.center)/math.sqrt( 200**2 + 200**2)
-        F = np.array([[0],[0]])
+        F = np.array([[0],[0],[0]])
         print "-----------------------------"
         for _ in np.arange(0, (tau / dt) + 1):
 
-            (x_t, xd_t, xdd_t) = runner_x.step(tau, dt,error=err_x, externail_force=F[0])
-            (y_t, yd_t, ydd_t) = runner_y.step(tau, dt,error=err_y, externail_force=F[1])
+            (x_t, xd_t, xdd_t) = runner_x.step(tau, dt,error=err_x, externail_force=-F[0])
+            (y_t, yd_t, ydd_t) = runner_y.step(tau, dt,error=err_y, externail_force=-F[1])
 
             up = 20 * (np.array([[x_t],   [y_t], [0]]) - cursor.state[0:3])
             uv = 20 * (np.array([[xd_t], [yd_t], [0]]) - cursor.state[3:])
 
             F = np.array([[xdd_t], [ydd_t], [0]]) - up - uv
-            print "F",F
+
             F[0] = np.asscalar(F[0][0])
             F[1] = np.asscalar(F[1][0])
             cursor.move(F)
             err_x = 0.1 * abs(cursor.state[0] - x_t)[0]
             err_y = 0.1 * abs(cursor.state[1] - y_t)[0]
-            print "err", err_x
-            F_r = get_obs_force(cursor,game)
-            F_a = get_goal_force(cursor,goal)
+            # F_r = get_obs_force(cursor,game)
+            # F_a = get_goal_force(cursor,goal)
 
             F = get_force(cursor,game,goal)
-            print cursor.state
-            total_force = F_r #+ F_a
+
             X.append(cursor.state[0])
             Y.append(cursor.state[1])
             game.move_player(cursor.state[0], cursor.state[1])
@@ -166,7 +170,7 @@ def move_8way():
 
 
 if __name__ == "__main__":
-    game = FinalProject.Game.SpaceWar.SpaceWar((600,300),5,15)
+    game = FinalProject.Game.SpaceWar.SpaceWar((600,300),1,1)
     cursor = Cursor.Cursor(1, 0.01)
     update = True
 
