@@ -8,9 +8,9 @@ import spacewar_helper as helper
 class Player(pg.sprite.Sprite):
     def __init__(self,all_sprites):
 
-        groups = all_sprites
+        self.group = all_sprites
         self.radius  = 15
-        pg.sprite.Sprite.__init__(self, groups)
+        pg.sprite.Sprite.__init__(self, self.group)
         self.image = pg.image.load("./Images/Player.png").convert()#pg.Surface((30, 30))
         #self.image.fill(helper.GREEN)
         self.rect = self.image.get_rect()
@@ -26,16 +26,14 @@ class Player(pg.sprite.Sprite):
         #self.x += self.xd
         self.rect.center = self.x
         # prevent sprite from moving off screen
-        # if self.x.x < 0:
-        #     self.x.x = 0
-        # if self.x.x > helper.WIDTH:
-        #     self.x.x = helper.WIDTH
-        # if self.x.y < 0:
-        #     self.x.y = 0
-        # if self.x.y > helper.HEIGHT:
-        #     self.x.y = helper.HEIGHT
-
-
+        if self.x.x < 0:
+            self.x.x = 0
+        if self.x.x > helper.WIDTH:
+            self.x.x = helper.WIDTH
+        if self.x.y < 0:
+            self.x.y = 0
+        if self.x.y > helper.HEIGHT:
+            self.x.y = helper.HEIGHT
 
 
     def update_vel(self,x,y):

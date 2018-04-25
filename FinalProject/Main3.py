@@ -11,11 +11,12 @@ import FinalProject.Game.spacewar_helper as sw_helper
 
 
 full_path = "/home/nathaniel/git/RBE550_motionplanning/FinalProject/keyboard_DMP/"
-replusor = PF.Repulisive_Function(900000000000, 2 * sw_helper.RADIUS + 30)
-attactor = PF.Attractive_Function(0, 10)
-replusor_vel = PF.Velocity_Repulsive_Function(900000000000,10,70 )
+replusor = PF.Repulisive_Function(90000000, 2 * sw_helper.RADIUS + 30)
+attactor = PF.Attractive_Function(500, 10)
+replusor_vel = PF.Velocity_Repulsive_Function(900000000,20,120 )
+
 DMP_force_static = PF.DMP_Potential_Function(500, 10 / np.pi)
-DMP_force_dynamic = PF.DMP_Potential_Function(500, 60 / np.pi)
+DMP_force_dynamic = PF.DMP_Potential_Function(550000000, 120/math.pi)
 
 
 def get_DMP(player,goal):
@@ -66,10 +67,23 @@ def get_vel_env_force(game,goal):
     F_r = np.array([[0], [0], [0]])
     for point in obs:
         #obstical = np.array([[pt[0]], [pt[1]]])
-        temp =  np.asarray(replusor_vel.get_nabla_U(game.player, point)).reshape((3,1))
+        print "a"
+        temp =  -np.asarray(replusor_vel.get_nabla_U(game.player, point)).reshape((3,1))
         F_r = np.add(F_r, temp)
+    #oal_pt = np.asarray([[goal.rect.centerx], [goal.rect.centery]])
+    goal_pose = np.asarray([[goal.rect.centerx], [goal.rect.centery]])
+    robot = np.array([game.player.rect.centerx, game.player.rect.centery ])
+    print robot
+    F_a = attactor.get_nabla_U(robot,goal_pose)
+    print "Fa", F_a
+    print "Fr", F_r
+    F_r[[0, 1]] = F_r[[1, 0]]
 
-    return F_r  # + F_a
+    F_total = F_r
+    print F_total
+
+    #F_total[[0,1]] = F_total[[1, 0]]
+    return F_total
 
 
 def get_static_env_force(cursor,game,goal):
@@ -86,13 +100,17 @@ def get_static_env_force(cursor,game,goal):
         obstical = np.array([[pt[0]], [pt[1]]])
         F_r = replusor.get_nabla_U( player, obstical )
 
-    return F_r #+ F_a
+    return F_r + F_a
 
 
 def get_goal_force(cursor, goal):
-    player = np.asarray([np.asscalar(cursor.state[0]), np.asscalar(cursor.state[1])])
-    goal_pt = np.asarray([[goal.rect.centerx], [goal.rect.centery]])
-    return attactor.get_nabla_U( player, goal_pt )
+
+    player = np.asarray([[np.asscalar(cursor.state[0])], [np.asscalar(cursor.state[1])]])
+    #oal_pt = np.asarray([[goal.rect.centerx], [goal.rect.centery]])
+    goal_pose = np.asarray([[goal.rect.centerx], [goal.rect.centery]])
+    F_a = attactor.get_nabla_U(player,goal_pose)
+
+    return F_a
 
 
 def get_force(cursor, game, goal):
@@ -122,7 +140,7 @@ def get_force_dynamic(cursor, game, goal):
     for point in obs:
         player = np.asarray([np.asscalar(cursor.state[0]), np.asscalar(cursor.state[1])])
         #obstical = np.array([[pt[0]], [pt[1]]])
-        temp = DMP_force_static.velocity_force(cursor.state, point, goal_pt)
+        temp = DMP_force_dynamic.velocity_force(cursor.state, point, goal_pt)
         F_r = np.add( F_r , temp)
 
     return F_r
@@ -135,6 +153,7 @@ def run(game, cursor):
     cursor.set_state(np.array([[x], [y], [0], [0], [0], [0]]))
     X = []
     Y = []
+    F_profile = []
     while len(game.get_goals()) > 0:
 
         goal = get_goal(game.get_player(), game.get_goals() )
@@ -159,25 +178,85 @@ def run(game, cursor):
 
             F[0] = np.asscalar(F[0][0])
             F[1] = np.asscalar(F[1][0])
-            cursor.move(F)
+
+            blocks_hit_list = pg.sprite.spritecollide(game.player, game.all_sprites, False)
+            Fx = 0
+            Fy = 0
+            # for block in blocks_hit_list:
+            #     if block != game.player:
+            #         if game.player.rect.x > block.rect.x:
+            #             Fx = 10000
+            #         else:
+            #             Fx = -10000
+            #
+            #         if game.player.rect.y > block.rect.y:
+            #             Fy = 10000
+            #         else:
+            #             Fy = -100000
+
+            F_ext = np.array([[Fx], [Fy],[0]])
+
+            cursor.move(F+F_ext)
             err_x = 0.1 * abs(cursor.state[0] - x_t)[0]
             err_y = 0.1 * abs(cursor.state[1] - y_t)[0]
             #F = get_static_env_force(cursor,game,goal)
-            F =  -get_vel_env_force(game,goal)
-            print "f1", F
-            #F = get_force_dynamic(cursor, game, goal)
+            F_vel = get_vel_env_force(game,goal)
+            #print "f1", F
+            F_dy = get_force_dynamic(cursor, game, goal)
+            F_goal = get_goal_force(cursor, goal)
             #print "f2", F
-            X.append(cursor.state[0])
-            Y.append(cursor.state[1])
+            alpha =0.5
+
+            F  = alpha*(F_vel + F_goal) + (1-alpha)*F_dy
+            F_profile.append(F)
+            print [cursor.state[0],cursor.state[1]]
+            X.append([ np.asscalar(cursor.state[0]), np.asscalar(cursor.state[1])])
             game.move_player(cursor.state[0], cursor.state[1])
             game.update()
 
 
     time_step = np.arange(0, (1 / 0.001) + 1)
-    # plt.plot(X, Y)
-    plt.plot(time_step,Y)
-    # plt.plot(time_step, F_x)
-    # plt.plot(time_step,F_y)
+    plot_force(F_profile,X)
+
+
+def plot_force(forces,pose):
+    """
+
+    :param force_profile:
+    :return:
+    """
+
+    x = []
+    y = []
+    z = []
+    fx = []
+    fy = []
+    fz = []
+    #print forces
+    for f,s in zip(forces,pose):
+        x.append(s[0])
+        y.append(s[1])
+        fx.append(f[0])
+        fy.append(f[1])
+        fz.append(f[2])
+    plt.subplot(211)
+    plt.plot(x,y)
+    #plt.plot(300,250,'ro',mew=30)
+    #plt.plot(300, 100, 'bo',mew=30)
+    #plt.ylabel("pixels")
+    #plt.xlabel("pixels")
+    plt.title("Position")
+    plt.subplot(212)
+    plt.xlabel("timestep")
+    plt.ylabel("Newtons")
+    plt.plot(range(len(fx)), fx)
+    plt.plot(range(len(fy)), fy)
+    plt.title("Force")
+    #plt.plot(range(len(fz)), fz)
+    plt.legend(["Fx","Fy"])
+    # ax = plt.gca()
+    # ax.set_xticklabels([])
+
     plt.show()
 
 
@@ -199,9 +278,10 @@ def move_8way():
 
 
 if __name__ == "__main__":
-    game = FinalProject.Game.SpaceWar.SpaceWar((600,300),5,5)
+    game = FinalProject.Game.SpaceWar.SpaceWar((600,300),5,5
+                                               )
     cursor = Cursor.Cursor(1, 0.01)
     update = True
-
+    raw_input()
     t2 = threading.Thread(target=run, args=(game, cursor))
     t2.start()

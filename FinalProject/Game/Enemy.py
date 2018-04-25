@@ -8,6 +8,7 @@ class Enemy(pg.sprite.Sprite):
     def __init__(self,all_sprites,center):
 
         self.group = all_sprites
+
         pg.sprite.Sprite.__init__(self, all_sprites)
         self.image = pg.image.load("./Images/obs.png").convert()#pg.Surface((40, 40))
         #self.image.fill(helper.RED)
@@ -17,7 +18,8 @@ class Enemy(pg.sprite.Sprite):
 
         self.rect.center = center
         self.x = vec(center[0],center[1])
-        self.xd = vec(random.randrange(-1, 1), random.randrange(-1, 1))
+        self.xd = vec(0.25*random.randrange(-1, 1), 0.25*random.randrange(-1, 1))
+        #self.xd = vec(0, 0)
 
     def update(self):
 
@@ -35,3 +37,7 @@ class Enemy(pg.sprite.Sprite):
             if block != self :
                 self.xd.y = -self.xd.y
                 self.xd.x = -self.xd.x
+
+
+
+

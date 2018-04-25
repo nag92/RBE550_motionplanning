@@ -40,9 +40,12 @@ class Attractive_Function():
             U = self.zeta * ( robot_pos - goal_pos )
 
         else:
-            U =  (self.d_threash*self.zeta * ( np.asarray(robot_pos) - np.asarray(goal_pos) ))/(dist)
-
-        return np.insert(U,2,0,axis=0)
+            print "sdfsdaf", np.asarray(goal_pos)
+            U = (self.d_threash*self.zeta * ( np.asarray(robot_pos) - np.asarray(goal_pos) ))/(dist)
+        print "U", U
+        U = np.insert(U,2,0,axis=0)
+        print "U2", U
+        return U#np.insert(U,2,0,axis=0)
 
 
 
@@ -201,13 +204,16 @@ class Velocity_Repulsive_Function():
 
         F1 = (-self.eta /( pho_s - pho_m  )**2) * ( 1 + v_ro/self.a_max ) * n
         F2 = ((self.eta * v_ro * v_ro_norm  ) / ( pho_s*self.a_max * ( pho_s - pho_m  )**2 ) )
-
+        print F2
         if 0 < pho_s - pho_m < self.pho_0 and v_ro > 0:
             F = F1 + F2
             F = np.insert(F,2,0,axis=0)
+            print "here"
         else:
             F = np.array([0, 0, 0])
 
+        F = F1 + F2
+        F = np.insert(F, 2, 0, axis=0)
 
         return F
 
